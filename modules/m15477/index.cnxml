@@ -1,0 +1,47 @@
+<document xmlns="http://cnx.rice.edu/cnxml">
+  <title>Interactive Time-Varying Digital Filter in LabVIEW</title>
+  <metadata xmlns:md="http://cnx.rice.edu/mdml">
+  <md:content-id>m15477</md:content-id>
+  <md:title>Interactive Time-Varying Digital Filter in LabVIEW</md:title>
+  <md:abstract>A time-varying digital filter can easily be implemented in LabVIEW, and this module demonstrates the complete process necessary to develop a digital filter that operates in real-time and responds to parameter changes from the front panel controls. An audio demonstration of the finished result includes discussion of practical issues such as eliminating click noise in the output signal.</md:abstract>
+  <md:uuid>78451a12-96f7-4c02-90e1-8d342e66d16e</md:uuid>
+</metadata>
+
+<content>
+
+<table id="labview_banner" frame="none" summary=""><tgroup cols="2">
+<colspec rowsep="0" colsep="0"/> <colspec colwidth="6in" rowsep="0" colsep="0"/>
+<tbody>
+  <row>
+    <entry morerows="3"><media id="idp2598432" alt=""><image src="../../media/LabVIEWq.png" mime-type="image/png"/></media></entry>
+    <entry> This module refers to LabVIEW, a software development environment that features a graphical programming language.
+       Please see the <link document="m15428">LabVIEW QuickStart Guide</link> module for tutorials and documentation that will help you:</entry>
+  </row>
+  <row> <entry>• Apply LabVIEW to Audio Signal Processing </entry> </row>
+  <row> <entry>• Get started with LabVIEW</entry> </row>
+  <row> <entry>• Obtain a fully-functional evaluation edition of LabVIEW</entry> </row>
+</tbody>
+</tgroup>
+</table>
+
+
+<para id="par1">
+		A time-varying digital filter can easily be implemented in LabVIEW. The screencast video
+		of <link target-id="video-build"/> walks through the complete process to develop
+		a digital filter that operates in real-time and responds to parameter changes from the
+		front panel controls. The video includes an audio demonstration of the finished result
+		and discusses practical issues such as eliminating clicks in the output signal.
+</para>
+
+<para id="par2">
+		<media id="idp7581088" alt=""><image src="../../media/LabVIEW.png" mime-type="image/png"/></media> Download the source code for the finished VI: <link resource="filter_rt.vi">filter_rt.vi</link>.
+		Refer to <link document="m15430">TripleDisplay</link> to install the 
+		front-panel indicator used to view the signal spectrum.
+</para>
+
+<figure id="video-build"><title><link url="https://youtu.be/jZBMy28C4Xs" window="new">https://youtu.be/jZBMy28C4Xs</link> (16:44)</title><media id="eip-idm432224080" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/jZBMy28C4Xs?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Building an interactive real-time digital filter in LabVIEW
+</caption></figure></content>
+</document>

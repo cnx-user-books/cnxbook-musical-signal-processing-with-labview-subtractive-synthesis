@@ -1,0 +1,68 @@
+<!--title = Linear Prediction and Cross Synthesis
+
+-->
+
+<?xml version='1.0' standalone='yes' ?>
+<LVData>
+<Version>8.2</Version>
+
+<!-------------------------------------------------------->
+<String> <Name>sec</Name> <Val>Introduction</Val> </String>
+
+<String> <Name>para</Name> <Val>
+		{term}Subtractive synthesis{/term} methods are characterized by a wideband excitation source followed
+		by a time-varying filter. {term}Linear prediction{/term} provides an effective way to estimate
+		the time-varying filter coefficients by analyzing an existing music or speech signal. 
+		{term}Linear predictive coding{/term} ({term}LPC{/term}) is one of the first applications of linear
+		prediction to the problem of speech compression. In this application, a speech signal is modelled as
+		a time-varying digital filter driven by an {term}innovations sequence{/term}. The LPC method identifies
+		the filter coefficients by minimizing the prediction error between the filter output and the original
+		signal. Significant compression is possible since the innovations sequence and filter coefficients 
+		require less space than the original signal.
+
+		{term}Cross synthesis{/term} is a musical adaptation of the speech compression technique. A musical
+		instrument or speech signal serves as the original signal to be analyzed. Once the filter coefficients
+		have been estimated, the innovations sequence is discarded and another signal is used as the filter
+		excitation. For example, a "singing guitar" can be created by deriving the filter coefficients from
+		a vocalist and driving the filter with an electric guitar. 
+		
+		As an example, listen to the speech signal, the musical signal, and the cross-synthesized result:
+</Val> </String>
+
+<Cluster> <Name>list</Name> <NumElts>3</NumElts>
+<EW> <Name>type</Name> <Choice>Bulleted</Choice> <Choice>Enumerated</Choice> <Val>0</Val> </EW>
+<String> <Name>list name (optional)</Name> <Val></Val> </String>
+<Array> <Name>list items</Name> <Dimsize>3</Dimsize>
+<String> <Name>String</Name> <Val>{link src=&quot;speech.wav&quot;}speech.wav{/link} (source: Open Speech Repository)</Val> </String>
+<String> <Name>String</Name> <Val>{link src=&quot;music.wav&quot;}music.wav{/link}</Val> </String>
+<String> <Name>String</Name> <Val>{link src=&quot;cross.wav&quot;}cross.wav{/link}</Val> </String>
+</Array>
+</Cluster>
+
+
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+<String> <Name>sec</Name> <Val>Linear Prediction Theory</Val> </String>
+
+<String> <Name>para</Name> <Val>
+		The screencast video of {cnxn target=&quot;video-theory&quot;/} develops the theory behind linear prediction, and describes
+		how the technique is applied to musical signals. Practical issues such as choosing the filter block size and filter order
+		are also discussed.
+</Val> </String>
+
+<Cluster> <Name>video</Name> <NumElts>4</NumElts>
+<String> <Name>ID (optional)</Name> <Val>video-theory</Val> </String>
+<String> <Name>video name</Name> <Val>theory</Val> </String>
+<String> <Name>webpage title</Name> <Val>LPC theory</Val> </String>
+<String> <Name>caption</Name> <Val>Theory of linear prediction and cross synthesis</Val> </String>
+</Cluster>
+
+
+
+
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+
+</LVData>

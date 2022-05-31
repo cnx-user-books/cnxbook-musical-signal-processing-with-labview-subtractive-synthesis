@@ -1,0 +1,814 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:m="http://www.w3.org/1998/Math/MathML">
+  <title>Karplus-Strong Plucked String Algorithm with Improved Pitch Accuracy</title>
+  <metadata xmlns:md="http://cnx.rice.edu/mdml">
+  <md:content-id>m15490</md:content-id>
+  <md:title>Karplus-Strong Plucked String Algorithm with Improved Pitch Accuracy</md:title>
+  <md:abstract>The basic Karplus-Strong plucked string algorithm must be modified with a continuously adjustable loop delay to produce an arbitrary pitch with high accuracy. An all-pass filter provides a continuously-adjustable fractional delay, and is an ideal device to insert into the closed loop. The delay characteristics of both the lowpass and all-pass filters are explored, and the modified digital filter coefficients are derived. The filter is then implemented as a LabVIEW "virtual musical instrument" (VMI) to be played from a MIDI file using "MIDI JamSession."</md:abstract>
+  <md:uuid>e8c9f90d-1b8b-44ca-b77e-9897f52c44fa</md:uuid>
+</metadata>
+
+<content>
+
+<table id="labview_banner" frame="none" summary=""><tgroup cols="2">
+<colspec rowsep="0" colsep="0"/> <colspec colwidth="6in" rowsep="0" colsep="0"/>
+<tbody>
+  <row>
+    <entry morerows="3"><media id="idm11156704" alt=""><image src="../../media/LabVIEWq.png" mime-type="image/png"/></media></entry>
+    <entry> This module refers to LabVIEW, a software development environment that features a graphical programming language.
+       Please see the <link document="m15428">LabVIEW QuickStart Guide</link> module for tutorials and documentation that will help you:</entry>
+  </row>
+  <row> <entry>• Apply LabVIEW to Audio Signal Processing </entry> </row>
+  <row> <entry>• Get started with LabVIEW</entry> </row>
+  <row> <entry>• Obtain a fully-functional evaluation edition of LabVIEW</entry> </row>
+</tbody>
+</tgroup>
+</table>
+
+
+<section id="sec1">
+<title>Introduction</title>
+
+<para id="par2">
+		In the project activity of the prerequisite module <link document="m15489">Karplus-Strong Plucked String Algorithm</link>,
+		you undoubtedly noticed that
+		the pitch accuracy of the basic Karplus-Strong algorithm needs improvement. For example,
+		listen to the short MIDI test sequence <link resource="ksdemo.mid">ksdemo.mid</link>
+		rendered to audio with the basic algorithm using a sampling frequency of 20 kHz: 
+		<link resource="ksdemo_20kHz.wav">ksdemo_20kHz.wav</link>. The individual notes sound reasonable,
+		but when the notes are played simultaneously as a chord, the pitch inaccuracy becomes noticeable. 
+		The accuracy gets worse at lower sampling frequencies such as 10 kHz: 
+		<link resource="ksdemo_10kHz.wav">ksdemo_10kHz.wav</link>; increasing the sampling frequency
+		improves the accuracy, as at 44.1 kHz: <link resource="ksdemo_44kHz.wav">ksdemo_44kHz.wav</link>,
+		however, a discerning ear can still detect some problems.</para>
+
+<para id="par3">		The pitch of the plucked string tone is determined by the loop time, which must be made continuously
+		variable in order to precisely control the pitch. In the basic algorithm, the length of the delay line
+		determines the loop time, and the delay line can only be varied in integer amounts. The <term>all-pass filter</term> 
+		will be introduced and studied in this module as a means to introduce an adjustable fractional delay into the loop.</para>
+
+<para id="par4">		As a preview of the results that you can achieve, consider the same MIDI test sequence rendered to audio using
+		the techniques introduced in this section: <link resource="ks2demo_10kHz.wav">ks2demo_10kHz.wav</link> and
+		<link resource="ks2demo_20kHz.wav">ks2demo_20kHz.wav</link>.
+</para>
+
+</section>
+
+<section id="sec5">
+<title>Lowpass Filter Delay</title>
+
+<para id="par6">
+		In the <link document="m15489">prerequisite module</link>, the loop time was determined to be the product of the delay line length and the sampling interval.
+		The reciprocal of the loop time is the pitch (frequency) of the output signal
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:msub>
+    <m:mi>f</m:mi>
+    <m:mn>0</m:mn>
+   </m:msub>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aqatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8srps0lbbf9q8WrFfeuY=Hhbbf9v8qqaqFr0xc9pk0xbba9q8WqFfea0=yr0RYxir=Jbba9q8aq0=yq=He9q8qqQ8frFve9Fve9Ff0dmeaabaqaciGacaGaaeqabaWaaeaaeaaakeaacaWGMbWaaSbaaSqaaiaaicdaaeqaaaaa@3718@</m:annotation>
+ </m:semantics>
+</m:math>:
+</para>
+
+<equation id="eqn-pitch">
+
+
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:msub>
+    <m:mi>f</m:mi>
+    <m:mn>0</m:mn>
+   </m:msub>
+   <m:mo>=</m:mo><m:mfrac>
+    <m:mrow>
+     <m:msub>
+      <m:mi>f</m:mi>
+      <m:mi>S</m:mi>
+     </m:msub>
+    </m:mrow>
+    <m:mi>N</m:mi>
+   </m:mfrac>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamOzamaaBaaaleaacaaIWaaabeaakiabg2da9maalaaabaGaamOzamaaBaaaleaacaWGtbaabeaaaOqaaiaad6eaaaaaaa@3AF8@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ -->
+
+</equation>
+
+<para id="par8">
+		where 
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:msub>
+    <m:mi>f</m:mi>
+    <m:mi>S</m:mi>
+   </m:msub>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamOzamaaBaaaleaacaWGtbaabeaaaaa@372A@</m:annotation>
+ </m:semantics>
+</m:math> is the sampling frequency in Hz and
+<m:math>
+ <m:semantics>
+  <m:mi>N</m:mi>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamOtaaaa@360E@</m:annotation>
+ </m:semantics>
+</m:math> is the length of the delay line in samples. Because the delay line length must be an integer number of samples, the
+pitch cannot be set arbitrarily.</para>
+
+<para id="par9">Try the following exercises to explore this concept in more detail.
+</para>
+
+<exercise id="exer10">
+<problem id="idp196896">
+<para id="par11">
+			The sampling frequency is 40.00 kHz, and the length of the delay line is 40 samples.
+			What is the pitch of the output signal? If the delay line length is decreased by one sample,
+			what is the new pitch?
+	</para>
+</problem>
+<solution id="idm4208704">
+<para id="par12">
+			1000 Hz (40 kHz divided by 40 samples); 1026 Hz
+	</para>
+</solution>
+</exercise>
+<exercise id="exer13">
+<problem id="idm3515984">
+<para id="par14">
+			The sampling frequency is 10.00 kHz, and the length of the delay line is 10 samples.
+			What is the pitch of the output signal? If the delay line length is decreased by one sample,
+			what is the new pitch?
+	</para>
+</problem>
+<solution id="idm10781264">
+<para id="par15">
+			1000 Hz (10 kHz divided by 10 samples); 1111 Hz
+	</para>
+</solution>
+</exercise>
+<para id="par16">
+		For each of the two exercises, the first pitch is exactly the same, i.e., 1000 Hz. However, the
+		change in pitch caused by decreasing the delay line by only one sample is substantial (1026 Hz compared
+		to 1111 Hz). But how perceptible is this difference? The module 
+		<link document="m15440">Musical Intervals and the Equal-Tempered Scale</link> includes a
+		LabVIEW interactive front panel that displays the frequency of each key on a standard 88-key piano.
+		Pitch C6 is 1046 Hz while pitch C♯6 (a half-step higher) is 1109 Hz. These values are similar
+		to the change from 1000 Hz to 1111 Hz caused by altering the delay line length by only one sample,
+		so the change is certainly very audible. The abrupt "jump" in frequency becomes less pronounced
+		at lower pitches where the delay line length is longer.</para>
+
+<para id="par17">		Flexibility to adjust the overall loop time in a 
+		continuous fashion is required to improve pitch accuracy. Moreover, any sources of delay in the loop must be accurately known.
+		So far the delay of the low pass filter has been taken as zero, but in fact the low pass filter
+		introduces a delay of its own.</para>
+
+<para id="par18">		The <link target-id="video-delay"/> screencast video describes first how to calculate
+		the delay of an arbitrary digital filter with transfer function 
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:mi>H</m:mi><m:mo stretchy="false">(</m:mo><m:mi>z</m:mi><m:mo stretchy="false">)</m:mo>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamisaiaacIcacaWG6bGaaiykaaaa@3860@</m:annotation>
+ </m:semantics>
+</m:math>.
+</para>
+
+<figure id="video-delay"><title><link url="https://youtu.be/luD0UxxODso" window="new">https://youtu.be/luD0UxxODso</link> (3:34)</title><media id="eip-idm467200320" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/luD0UxxODso?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Calculating the delay of a filter given H(z)
+</caption></figure><para id="par20">
+		In general, therefore, the delay is the negated slope of the filter's phase function, and the
+		delay varies with frequency.</para>
+
+<para id="par21">		Now, consider the specific low pass filter used in the basic Karplus-Strong algorithm. The
+		filter coefficient "g" will be taken as 0.5, making the filter a true two-point averager:
+</para>
+
+<equation id="eqn-lpf">
+
+
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:msub>
+    <m:mi>H</m:mi>
+    <m:mrow>
+     <m:mtext>LPF</m:mtext>
+    </m:mrow>
+   </m:msub>
+   <m:mo stretchy="false">(</m:mo><m:mi>z</m:mi><m:mo stretchy="false">)</m:mo><m:mo>=</m:mo><m:mfrac>
+    <m:mrow>
+     <m:mn>1</m:mn><m:mo>+</m:mo><m:msup>
+      <m:mi>z</m:mi>
+      <m:mrow>
+       <m:mo>−</m:mo><m:mn>1</m:mn>
+      </m:mrow>
+     </m:msup>
+    </m:mrow>
+    <m:mn>2</m:mn>
+   </m:mfrac>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamisamaaBaaaleaacaqGmbGaaeiuaiaabAeaaeqaaOGaaiikaiaadQhacaGGPaGaeyypa0ZaaSaaaeaacaaIXaGaey4kaSIaamOEamaaCaaaleqabaGaeyOeI0IaaGymaaaaaOqaaiaaikdaaaaaaa@414E@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ -->
+
+</equation>
+
+<para id="par23">
+		The <link target-id="video-lpfdelay"/> screencast video continues the discussion by
+		deriving the delay of the low pass filter of <link target-id="eqn-lpf"/>. 
+		Several techniques for working with complex
+		numbers in LabVIEW are presented and used to visualize the magnitude and
+		phase response of the filter.
+</para>
+
+<figure id="video-lpfdelay"><title><link url="https://youtu.be/sHRvujzuhSQ" window="new">https://youtu.be/sHRvujzuhSQ</link> (5:10)</title><media id="eip-idm324883280" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/sHRvujzuhSQ?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Calculating the delay of the low pass filter
+</caption></figure><para id="par25">
+		Because the delay of the low pass filter is always 1/2, the pitch may be expressed more precisely as
+</para>
+
+<equation id="eqn-almost">
+
+
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:msub>
+    <m:mi>f</m:mi>
+    <m:mn>0</m:mn>
+   </m:msub>
+   <m:mo>=</m:mo><m:mfrac>
+    <m:mrow>
+     <m:msub>
+      <m:mi>f</m:mi>
+      <m:mi>S</m:mi>
+     </m:msub>
+    </m:mrow>
+    <m:mrow>
+     <m:mi>N</m:mi><m:mo>+</m:mo><m:mfrac>
+      <m:mn>1</m:mn>
+      <m:mn>2</m:mn>
+     </m:mfrac>
+    </m:mrow>
+   </m:mfrac>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamOzamaaBaaaleaacaaIWaaabeaakiabg2da9maalaaabaGaamOzamaaBaaaleaacaWGtbaabeaaaOqaaiaad6eacqGHRaWkdaWcaaqaaiaaigdaaeaacaaIYaaaaaaaaaa@3D61@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ -->
+
+</equation>
+
+<para id="par27">
+		While this result more accurately calculates the pitch, it does nothing to address the frequency 
+		resolution problem. 
+</para>
+
+</section>
+
+<section id="sec28">
+<title>All-Pass Filter Delay</title>
+
+<para id="par29">
+		Now, consider the <term>all-pass filter</term> (<term>APF</term>) as a means to introduce a variable
+		and fractional delay into the loop. The all-pass filter has a unit magnitude response over all
+		frequencies, so it does not "color" the signal passing through. However, the all-pass filter has
+		a phase response that is approximately linear for all but the highest frequencies, so it introduces 
+		an approximately constant delay. Even better, the slope of the phase response is continuously variable,
+		making it possible to adjust the delay as needed between 0 and 1 samples.</para>
+
+<para id="par30">		The all-pass filter transfer function is
+</para>
+
+<equation id="eqn-apf">
+
+
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:msub>
+    <m:mi>H</m:mi>
+    <m:mrow>
+     <m:mtext>APF</m:mtext>
+    </m:mrow>
+   </m:msub>
+   <m:mo stretchy="false">(</m:mo><m:mi>z</m:mi><m:mo stretchy="false">)</m:mo><m:mo>=</m:mo><m:mfrac>
+    <m:mrow>
+     <m:mi>C</m:mi><m:mo>+</m:mo><m:msup>
+      <m:mi>z</m:mi>
+      <m:mrow>
+       <m:mo>−</m:mo><m:mn>1</m:mn>
+      </m:mrow>
+     </m:msup>
+    </m:mrow>
+    <m:mrow>
+     <m:mn>1</m:mn><m:mo>+</m:mo><m:mi>C</m:mi><m:msup>
+      <m:mi>z</m:mi>
+      <m:mrow>
+       <m:mo>−</m:mo><m:mn>1</m:mn>
+      </m:mrow>
+     </m:msup>
+    </m:mrow>
+   </m:mfrac>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamisamaaBaaaleaacaqGbbGaaeiuaiaabAeaaeqaaOGaaiikaiaadQhacaGGPaGaeyypa0ZaaSaaaeaacaWGdbGaey4kaSIaamOEamaaCaaaleqabaGaeyOeI0IaaGymaaaaaOqaaiaaigdacqGHRaWkcaWGdbGaamOEamaaCaaaleqabaGaeyOeI0IaaGymaaaaaaaaaa@45CD@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ -->
+
+</equation>
+
+<para id="par32">
+		where 
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:mrow><m:mo>|</m:mo> <m:mi>C</m:mi> <m:mo>|</m:mo></m:mrow><m:mo>&lt;</m:mo><m:mn>1</m:mn>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaWaaqWaaeaacaWGdbaacaGLhWUaayjcSdGaeyipaWJaaGymaaaa@3AE4@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ -->
+to ensure stability.</para>
+
+<para id="par33">		The <link target-id="video-apfdelay"/> screencast video continues the discussion by
+		exploring the delay of the all-pass filter of <link target-id="eqn-apf"/> as a function
+		of the parameter C.
+</para>
+
+<figure id="video-apfdelay"><title><link url="https://youtu.be/2cWV1NceJ1U" window="new">https://youtu.be/2cWV1NceJ1U</link> (5:07)</title><media id="eip-idm1609940960" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/2cWV1NceJ1U?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Calculating the delay of the all-pass filter
+</caption></figure></section>
+
+<section id="sec35">
+<title>Implementing the Pitch-Accurate Algorithm</title>
+
+<para id="par36">
+		Including the all-pass filter in the basic Karplus-Strong algorithm allows the loop time to be
+		set to an arbitrary value, making it possible to sound a tone with any desired pitch.</para>
+
+<para id="par37">		This section guides you through the necessary steps to augment the basic algorithm with an
+		all-pass filter, including the derivation of necessary equations to calculate the delay line
+		length and the fractional delay. Work through the derivations requested by each of the exercises.</para>
+
+<para id="par38">		To begin, the pitch of the output signal is the sampling frequency
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:msub>
+    <m:mi>f</m:mi>
+    <m:mn>S</m:mn>
+   </m:msub>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamOzamaaBaaaleaacaaIWaaabeaaaaa@370C@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ -->
+divided by the total loop delay in samples:
+</para>
+
+<equation id="eqn-loopdelay">
+
+
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:msub>
+    <m:mi>f</m:mi>
+    <m:mn>0</m:mn>
+   </m:msub>
+   <m:mo>=</m:mo><m:mfrac>
+    <m:mrow>
+     <m:msub>
+      <m:mi>f</m:mi>
+      <m:mi>S</m:mi>
+     </m:msub>
+    </m:mrow>
+    <m:mrow>
+     <m:mi>N</m:mi><m:mo>+</m:mo><m:mfrac>
+      <m:mn>1</m:mn>
+      <m:mn>2</m:mn>
+     </m:mfrac>
+     <m:mo>+</m:mo><m:mi>Δ</m:mi>
+    </m:mrow>
+   </m:mfrac>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamOzamaaBaaaleaacaaIWaaabeaakiabg2da9maalaaabaGaamOzamaaBaaaleaacaWGtbaabeaaaOqaaiaad6eacqGHRaWkdaWcaaqaaiaaigdaaeaacaaIYaaaaiabgUcaRiabfs5aebaaaaa@3FA9@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ -->
+
+</equation>
+
+<para id="par40">
+		where
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mi>Δ</m:mi>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaeuiLdqeaaa@36A1@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ -->
+is the fractional delay introduced by the all-pass filter. 
+</para>
+
+<exercise id="exer41">
+<problem id="idp371328">
+<para id="par42">
+			Refer to <link target-id="eqn-loopdelay"/>. Derive a pair of equations that can be used to calculate the length of
+			the delay line
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mi>N</m:mi>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamOtaaaa@360E@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ --> and the value of the fractional delay 
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mi>Δ</m:mi>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaeuiLdqeaaa@36A1@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ -->.
+	</para>
+</problem>
+<solution id="idm1680416">
+<para id="par43">
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:mi>N</m:mi><m:mo>=</m:mo><m:mrow><m:mo>⌊</m:mo> <m:mrow>
+    <m:mfrac>
+     <m:mrow>
+      <m:msub>
+       <m:mi>f</m:mi>
+       <m:mi>S</m:mi>
+      </m:msub>
+     </m:mrow>
+     <m:mrow>
+      <m:msub>
+       <m:mi>f</m:mi>
+       <m:mn>0</m:mn>
+      </m:msub>
+     </m:mrow>
+    </m:mfrac>
+    <m:mo>−</m:mo><m:mfrac>
+     <m:mn>1</m:mn>
+     <m:mn>2</m:mn>
+    </m:mfrac>
+   </m:mrow> <m:mo>⌋</m:mo></m:mrow>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamOtaiabg2da9maagmaabaWaaSaaaeaacaWGMbWaaSbaaSqaaiaadofaaeqaaaGcbaGaamOzamaaBaaaleaacaaIWaaabeaaaaGccqGHsisldaWcaaqaaiaaigdaaeaacaaIYaaaaaGaayj84laawUp+aaaa@4284@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ --> (the "floor" operator converts the operand to an integer by selecting the largest integer that is less than the operand);
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:mi>Δ</m:mi><m:mo>=</m:mo><m:mfrac>
+    <m:mrow>
+     <m:msub>
+      <m:mi>f</m:mi>
+      <m:mi>S</m:mi>
+     </m:msub>
+    </m:mrow>
+    <m:mrow>
+     <m:msub>
+      <m:mi>f</m:mi>
+      <m:mn>0</m:mn>
+     </m:msub>
+    </m:mrow>
+   </m:mfrac>
+   <m:mo>−</m:mo><m:mi>N</m:mi>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaeuiLdqKaeyypa0ZaaSaaaeaacaWGMbWaaSbaaSqaaiaadofaaeqaaaGcbaGaamOzamaaBaaaleaacaaIWaaabeaaaaGccqGHsislcaWGobaaaa@3D4B@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ -->
+	</para>
+</solution>
+</exercise>
+<para id="par44">
+		The all-pass filter delay can be approximated by <link target-id="eqn-apfdelay"/> (see Moore):
+</para>
+
+<equation id="eqn-apfdelay">
+
+
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:mi>Δ</m:mi><m:mo>=</m:mo><m:mfrac>
+    <m:mrow>
+     <m:mn>1</m:mn><m:mo>−</m:mo><m:mi>C</m:mi>
+    </m:mrow>
+    <m:mrow>
+     <m:mn>1</m:mn><m:mo>+</m:mo><m:mi>C</m:mi>
+    </m:mrow>
+   </m:mfrac>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaeuiLdqKaeyypa0ZaaSaaaeaacaaIXaGaeyOeI0Iaam4qaaqaaiaaigdacqGHRaWkcaWGdbaaaaaa@3C8C@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ -->
+
+</equation>
+
+<exercise id="exer46">
+<problem id="idp536320">
+<para id="par47">Refer to <link target-id="eqn-apfdelay"/>. Solve the equation for the all-pass filter coefficient C in terms of the
+	required fractional delay.</para>
+</problem>
+<solution id="idm10122560">
+<para id="par48">
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:mi>C</m:mi><m:mo>=</m:mo><m:mfrac>
+    <m:mrow>
+     <m:mn>1</m:mn><m:mo>−</m:mo><m:mi>Δ</m:mi>
+    </m:mrow>
+    <m:mrow>
+     <m:mn>1</m:mn><m:mo>+</m:mo><m:mi>Δ</m:mi>
+    </m:mrow>
+   </m:mfrac>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaam4qaiabg2da9maalaaabaGaaGymaiabgkHiTiabfs5aebqaaiaaigdacqGHRaWkcqqHuoaraaaaaa@3D2A@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ -->
+</para>
+</solution>
+</exercise>
+<para id="par49">
+		The all-pass filter can be inserted at any point in the loop; <link target-id="img-blockdgm"/> shows the all-pass filter placed after
+		the low pass filter.
+</para>
+
+<figure id="img-blockdgm">
+<media id="idm4397760" alt=""><image src="../../media/sub_ks2-blockdgm.png" mime-type="image/png"/></media>
+<caption>
+   Block diagram of the pitch-accurate Karplus-Strong algorithm
+</caption>
+</figure>
+
+<exercise id="exer51">
+<problem id="idp3361744">
+<para id="par52">
+		To simplify the derivation of the overall filter transfer function that relates y(n) to x(n), consider the three feedback elements (delay line, low pass filter,
+		and all-pass filter) to be a single element with transfer function 
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:mi>G</m:mi><m:mo stretchy="false">(</m:mo><m:mi>z</m:mi><m:mo stretchy="false">)</m:mo>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaam4raiaacIcacaWG6bGaaiykaaaa@385F@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ -->. Derive the transfer function of the combined element.
+</para>
+</problem>
+<solution id="idm2274304">
+<para id="par53">
+		The elements are in cascade, so the individual transfer functions multiply together:
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:mi>G</m:mi><m:mo stretchy="false">(</m:mo><m:mi>z</m:mi><m:mo stretchy="false">)</m:mo><m:mo>=</m:mo><m:msup>
+    <m:mi>z</m:mi>
+    <m:mrow>
+     <m:mo>−</m:mo><m:mi>N</m:mi>
+    </m:mrow>
+   </m:msup>
+   <m:msub>
+    <m:mi>H</m:mi>
+    <m:mrow>
+     <m:mi>L</m:mi><m:mi>P</m:mi><m:mi>F</m:mi>
+    </m:mrow>
+   </m:msub>
+   <m:mo stretchy="false">(</m:mo><m:mi>z</m:mi><m:mo stretchy="false">)</m:mo><m:msub>
+    <m:mi>H</m:mi>
+    <m:mrow>
+     <m:mi>A</m:mi><m:mi>P</m:mi><m:mi>F</m:mi>
+    </m:mrow>
+   </m:msub>
+   <m:mo stretchy="false">(</m:mo><m:mi>z</m:mi><m:mo stretchy="false">)</m:mo>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaam4raiaacIcacaWG6bGaaiykaiabg2da9iaadQhadaahaaWcbeqaaiabgkHiTiaad6eaaaGccaWGibWaaSbaaSqaaiaadYeacaWGqbGaamOraaqabaGccaGGOaGaamOEaiaacMcacaWGibWaaSbaaSqaaiaadgeacaWGqbGaamOraaqabaGccaGGOaGaamOEaiaacMcaaaa@47E8@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ -->
+</para>
+</solution>
+</exercise>
+<exercise id="exer54">
+<problem id="idp3371136">
+<para id="par55">
+			Refer to the block diagram of <link target-id="img-blockdgm"/>. Considering that all three elements are represented by a single feedback element G(z), 
+			derive the overall transfer function H(z) for the digital filter in terms of G(z).
+	</para>
+</problem>
+<solution id="idp3597600">
+<para id="par56">
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:mi>H</m:mi><m:mo stretchy="false">(</m:mo><m:mi>z</m:mi><m:mo stretchy="false">)</m:mo><m:mo>=</m:mo><m:mfrac>
+    <m:mn>1</m:mn>
+    <m:mrow>
+     <m:mn>1</m:mn><m:mo>−</m:mo><m:mi>G</m:mi><m:mo stretchy="false">(</m:mo><m:mi>z</m:mi><m:mo stretchy="false">)</m:mo>
+    </m:mrow>
+   </m:mfrac>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamisaiaacIcacaWG6bGaaiykaiabg2da9maalaaabaGaaGymaaqaaiaaigdacqGHsislcaWGhbGaaiikaiaadQhacaGGPaaaaaaa@3EFD@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ -->
+	</para>
+</solution>
+</exercise>
+<para id="par57">
+		Recall the low pass filter transfer function (<link target-id="eqn-lpftf"/>):
+</para>
+
+<equation id="eqn-lpftf">
+
+
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:msub>
+    <m:mi>H</m:mi>
+    <m:mrow>
+     <m:mi>L</m:mi><m:mi>P</m:mi><m:mi>F</m:mi>
+    </m:mrow>
+   </m:msub>
+   <m:mo stretchy="false">(</m:mo><m:mi>z</m:mi><m:mo stretchy="false">)</m:mo><m:mo>=</m:mo><m:mi>g</m:mi><m:mo stretchy="false">(</m:mo><m:mn>1</m:mn><m:mo>+</m:mo><m:msup>
+    <m:mi>z</m:mi>
+    <m:mrow>
+     <m:mo>−</m:mo><m:mn>1</m:mn>
+    </m:mrow>
+   </m:msup>
+   <m:mo stretchy="false">)</m:mo>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamisamaaBaaaleaacaWGmbGaamiuaiaadAeaaeqaaOGaaiikaiaadQhacaGGPaGaeyypa0Jaam4zaiaacIcacaaIXaGaey4kaSIaamOEamaaCaaaleqabaGaeyOeI0IaaGymaaaakiaacMcaaaa@42CD@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ -->
+
+</equation>
+
+<para id="par59">
+		The all-pass filter transfer function is described by <link target-id="eqn-apf"/>.
+</para>
+
+<exercise id="exer60">
+<problem id="idm2237152">
+<para id="par61">Derive the overall transfer function H(z) in terms of the filter parameters g and C. Write the transfer function
+	in standard form as the ratio of two polynomials in z.</para>
+</problem>
+<solution id="idm2525824">
+<para id="par62">
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:mi>H</m:mi><m:mo stretchy="false">(</m:mo><m:mi>z</m:mi><m:mo stretchy="false">)</m:mo><m:mo>=</m:mo><m:mfrac>
+    <m:mrow>
+     <m:mn>1</m:mn><m:mo>+</m:mo><m:mi>C</m:mi><m:msup>
+      <m:mi>z</m:mi>
+      <m:mrow>
+       <m:mo>−</m:mo><m:mn>1</m:mn>
+      </m:mrow>
+     </m:msup>
+    </m:mrow>
+    <m:mrow>
+     <m:mn>1</m:mn><m:mo>+</m:mo><m:mi>C</m:mi><m:msup>
+      <m:mi>z</m:mi>
+      <m:mrow>
+       <m:mo>−</m:mo><m:mn>1</m:mn>
+      </m:mrow>
+     </m:msup>
+     <m:mo>−</m:mo><m:mi>g</m:mi><m:mi>C</m:mi><m:msup>
+      <m:mi>z</m:mi>
+      <m:mrow>
+       <m:mo>−</m:mo><m:mi>N</m:mi>
+      </m:mrow>
+     </m:msup>
+     <m:mo>−</m:mo><m:mi>g</m:mi><m:mo stretchy="false">(</m:mo><m:mn>1</m:mn><m:mo>+</m:mo><m:mi>C</m:mi><m:mo stretchy="false">)</m:mo><m:msup>
+      <m:mi>z</m:mi>
+      <m:mrow>
+       <m:mo>−</m:mo><m:mo stretchy="false">(</m:mo><m:mi>N</m:mi><m:mo>+</m:mo><m:mn>1</m:mn><m:mo stretchy="false">)</m:mo>
+      </m:mrow>
+     </m:msup>
+     <m:mo>−</m:mo><m:mi>g</m:mi><m:msup>
+      <m:mi>z</m:mi>
+      <m:mrow>
+       <m:mo>−</m:mo><m:mo stretchy="false">(</m:mo><m:mi>N</m:mi><m:mo>+</m:mo><m:mn>2</m:mn><m:mo stretchy="false">)</m:mo>
+      </m:mrow>
+     </m:msup>
+    </m:mrow>
+   </m:mfrac>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamisaiaacIcacaWG6bGaaiykaiabg2da9maalaaabaGaaGymaiabgUcaRiaadoeacaWG6bWaaWbaaSqabeaacqGHsislcaaIXaaaaaGcbaGaaGymaiabgUcaRiaadoeacaWG6bWaaWbaaSqabeaacqGHsislcaaIXaaaaOGaeyOeI0Iaam4zaiaadoeacaWG6bWaaWbaaSqabeaacqGHsislcaWGobaaaOGaeyOeI0Iaam4zaiaacIcacaaIXaGaey4kaSIaam4qaiaacMcacaWG6bWaaWbaaSqabeaacqGHsislcaGGOaGaamOtaiabgUcaRiaaigdacaGGPaaaaOGaeyOeI0Iaam4zaiaadQhadaahaaWcbeqaaiabgkHiTiaacIcacaWGobGaey4kaSIaaGOmaiaacMcaaaaaaaaa@5CD2@</m:annotation>
+ </m:semantics>
+</m:math>
+<!-- MathType@End@5@5@ -->
+</para>
+</solution>
+</exercise>
+</section>
+
+<section id="sec63">
+<title>Project Activity: Karplus-Strong VMI</title>
+
+<para id="par64">
+		As in the <link document="m15489">prerequisite module</link>, convert the pitch-accurate Karplus-Strong algorithm
+		into a <term>virtual musical instrument</term> (<term>VMI</term>) 
+		that can be played by "MIDI Jam Session." If necessary, visit 
+		<link document="m15053">MIDI JamSession</link>, download the application VI .zip file, and view the 
+		screencast video in that module to learn more about the application and how to create your 
+		own virtual musical instrument. Your VMI will accept parameters that specify 
+		frequency, amplitude, and duration of a single note, and will produce a corresponding array of 
+		audio samples using the Karplus-Strong algorithm described in the previous section.</para>
+
+<para id="par65">		For best results, select a MIDI music file that contains a solo instrument or perhaps a duet.
+		For example, try "Sonata in A Minor for Cello and Bass Continuo" by Antonio Vivaldi. 
+		A MIDI version of the sonata is available at the 
+		<link url="http://www.classicalguitarmidi.com">Classical Guitar MIDI Archives</link>, specifically 
+		<link url="http://www.classicalguitarmidi.com/subivic/Vivaldi_Sonata_Cello_Bass.mid">Vivaldi_Sonata_Cello_Bass.mid</link>.
+</para>
+
+</section>
+
+<section id="sec66">
+<title>References</title>
+
+<list id="list67" list-type="bulleted">
+
+<item> Moore, F.R., "Elements of Computer Music," Prentice-Hall, 1990, ISBN 0-13-252552-6. </item>
+<item> Karplus, K., and A. Strong, "Digital Synthesis of Plucked String and Drum Timbres," 
+			Computer Music Journal 7(2): 43-55, 1983. </item>
+
+</list>
+
+</section>
+
+</content>
+</document>

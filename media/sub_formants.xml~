@@ -1,0 +1,234 @@
+<!--title = Formant (Vowel) Synthesis
+-->
+
+<?xml version='1.0' standalone='yes' ?>
+<LVData>
+<Version>8.2</Version>
+
+<!-------------------------------------------------------->
+<String> <Name>sec</Name> <Val>Introduction</Val> </String>
+
+<String> <Name>para</Name> <Val>
+		Speech and singing contain a mixture of voiced and un-voiced sounds. Voiced sounds associate
+		with the vowel portions of words, while unvoiced sounds are produced when uttering consonants
+		like "s." The spectrum of a voiced sound contains characteristic resonant peaks
+		called {term}formants{/term}, and are the result of the frequency shaping produced by
+		the {term}vocal tract{/term} (mouth as well as nasal passage), a complex time-varying resonant cavity.
+
+		In this module, a {term}formant synthesizer{/term} is developed and implemented in LabVIEW. The
+		subtractive synthesis model of a wideband excitation source shaped by a digital filter is applied
+		here. The filter is implemented as a set of parallel two-pole resonators (bandpass filters) that
+		filter a band-limited pulse. Refer to the modules {cnxn document=&quot;m????&quot;}Subtractive Synthesis Concepts{/cnxn} 
+		and {cnxn document=&quot;m????&quot;}Band-Limited Pulse{/cnxn} for more details.
+</Val> </String>
+
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+<String> <Name>sec</Name> <Val>Formant Synthesis Technique</Val> </String>
+
+<String> <Name>para</Name> <Val>
+		The screencast video of {cnxn target=&quot;video-technique&quot;/} develops the general approach to formant synthesis:
+</Val> </String>
+
+<Cluster> <Name>video</Name> <NumElts>4</NumElts>
+<String> <Name>ID (optional)</Name> <Val>video-technique</Val> </String>
+<String> <Name>video name</Name> <Val>technique</Val> </String>
+<String> <Name>webpage title</Name> <Val>Formant synthesis technique</Val> </String>
+<String> <Name>caption</Name> <Val>Formant synthesis technique</Val> </String>
+</Cluster>
+
+<String> <Name>para</Name> <Val>
+		The mathematics of the band-limited pulse generator and its LabVIEW implemenation are presented in the module 
+		{cnxn document=&quot;m????&quot;}Band-Limited Pulse{/cnxn}.
+
+		The two-pole resonator is an IIR (infinite impulse response) digital filter defined by {cnxn target=&quot;eqn-resonator&quot;/}
+		(see Moore in the "References" section for additional details):
+</Val> </String>
+
+<Cluster> <Name>equation</Name> <NumElts>3</NumElts>
+<String> <Name>ID (optional)</Name> <Val>eqn-resonator</Val> </String>
+<String> <Name>name (optional)</Name> <Val></Val> </String>
+<String> <Name>MathML text</Name> <Val>
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+{m:math display=&apos;block&apos;}
+ {m:semantics}
+  {m:mrow}
+   {m:mi}H{/m:mi}{m:mo stretchy=&apos;false&apos;}({/m:mo}{m:mi}z{/m:mi}{m:mo stretchy=&apos;false&apos;}){/m:mo}{m:mo}={/m:mo}{m:mo stretchy=&apos;false&apos;}({/m:mo}{m:mn}1{/m:mn}{m:mo}&amp;#x2212;{/m:mo}{m:mi}R{/m:mi}{m:mo stretchy=&apos;false&apos;}){/m:mo}{m:mfrac}
+    {m:mrow}
+     {m:mn}1{/m:mn}{m:mo}&amp;#x2212;{/m:mo}{m:mi}R{/m:mi}{m:msup}
+      {m:mi}z{/m:mi}
+      {m:mrow}
+       {m:mo}&amp;#x2212;{/m:mo}{m:mn}2{/m:mn}
+      {/m:mrow}
+     {/m:msup}
+    {/m:mrow}
+    {m:mrow}
+     {m:mn}1{/m:mn}{m:mo}&amp;#x2212;{/m:mo}{m:mn}2{/m:mn}{m:mi}R{/m:mi}{m:mi}cos{/m:mi}{m:mo}&amp;#x2061;{/m:mo}{m:mi}&amp;#x03B8;{/m:mi}{m:msup}
+      {m:mi}z{/m:mi}
+      {m:mrow}
+       {m:mo}&amp;#x2212;{/m:mo}{m:mn}1{/m:mn}
+      {/m:mrow}
+     {/m:msup}
+     {m:mo}+{/m:mo}{m:msup}
+      {m:mi}R{/m:mi}
+      {m:mn}2{/m:mn}
+     {/m:msup}
+     {m:msup}
+      {m:mi}z{/m:mi}
+      {m:mrow}
+       {m:mo}&amp;#x2212;{/m:mo}{m:mn}2{/m:mn}
+      {/m:mrow}
+     {/m:msup}
+    {/m:mrow}
+   {/m:mfrac}
+  {/m:mrow}
+ {m:annotation encoding=&apos;MathType-MTEF&apos;}
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamisaiaacIcacaWG6bGaaiykaiabg2da9iaacIcacaaIXaGaeyOeI0IaamOuaiaacMcadaWcaaqaaiaaigdacqGHsislcaWGsbGaamOEamaaCaaaleqabaGaeyOeI0IaaGOmaaaaaOqaaiaaigdacqGHsislcaaIYaGaamOuaiGacogacaGGVbGaai4CaiabeI7aXjaadQhadaahaaWcbeqaaiabgkHiTiaaigdaaaGccqGHRaWkcaWGsbWaaWbaaSqabeaacaaIYaaaaOGaamOEamaaCaaaleqabaGaeyOeI0IaaGOmaaaaaaaaaa@52CF@{/m:annotation}
+ {/m:semantics}
+{/m:math}
+</Val> </String>
+</Cluster>
+
+<String> <Name>para</Name> <Val>
+		where
+{!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ --}
+{m:math display=&apos;block&apos;}
+ {m:semantics}
+  {m:mrow}
+   {m:mi}&amp;#x03B8;{/m:mi}{m:mo}={/m:mo}{m:mn}2{/m:mn}{m:mi}&amp;#x03C0;{/m:mi}{m:mrow}{m:mrow}
+    {m:mo stretchy=&apos;false&apos;}({/m:mo}{m:msub}
+     {m:mi}f{/m:mi}
+     {m:mi}C{/m:mi}
+    {/m:msub}
+   {/m:mrow}{m:mo}/{/m:mo}{m:mrow}
+    {m:msub}
+     {m:mi}f{/m:mi}
+     {m:mi}S{/m:mi}
+    {/m:msub}
+   {/m:mrow}{/m:mrow}
+   {m:mo stretchy=&apos;false&apos;}){/m:mo}
+  {/m:mrow}
+ {m:annotation encoding=&apos;MathType-MTEF&apos;}
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaeqiUdeNaeyypa0JaaGOmaiabec8aWnaalyaabaGaaiikaiaadAgadaWgaaWcbaGaam4qaaqabaaakeaacaWGMbWaaSbaaSqaaiaadofaaeqaaaaakiaacMcaaaa@3FC1@{/m:annotation}
+ {/m:semantics}
+ {/m:math},
+{!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ --}
+{m:math display=&apos;block&apos;}
+ {m:semantics}
+  {m:mrow}
+   {m:mi}R{/m:mi}{m:mo}={/m:mo}{m:msup}
+    {m:mi}e{/m:mi}
+    {m:mrow}
+     {m:mo}&amp;#x2212;{/m:mo}{m:mi}&amp;#x03C0;{/m:mi}{m:mi}B{/m:mi}{m:mo}/{/m:mo}{m:msub}
+      {m:mi}f{/m:mi}
+      {m:mi}S{/m:mi}
+     {/m:msub}
+    {/m:mrow}
+   {/m:msup}
+  {/m:mrow}
+ {m:annotation encoding=&apos;MathType-MTEF&apos;}
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamOuaiabg2da9iaadwgadaahaaWcbeqaaiabgkHiTiabec8aWjaadkeacaGGVaGaamOzamaaBaaameaacaWGtbaabeaaaaaaaa@3E43@{/m:annotation}
+ {/m:semantics}
+ {/m:math}, 
+{!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ --}
+{m:math display=&apos;block&apos;}
+ {m:semantics}
+  {m:mrow}
+   {m:msub}
+    {m:mi}f{/m:mi}
+    {m:mi}C{/m:mi}
+   {/m:msub}
+  {/m:mrow}
+ {m:annotation encoding=&apos;MathType-MTEF&apos;}
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamOzamaaBaaaleaacaWGdbaabeaaaaa@371A@{/m:annotation}
+ {/m:semantics}
+ {/m:math} is the center frequency,
+{!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ --}
+{m:math display=&apos;block&apos;}
+ {m:semantics}
+  {m:mi}B{/m:mi}
+ {m:annotation encoding=&apos;MathType-MTEF&apos;}
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamOqaaaa@3602@{/m:annotation}
+ {/m:semantics}
+{/m:math} is the bandwidth, and
+{!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ --}
+{m:math display=&apos;block&apos;}
+ {m:semantics}
+  {m:mrow}
+   {m:msub}
+    {m:mi}f{/m:mi}
+    {m:mi}S{/m:mi}
+   {/m:msub}
+  {/m:mrow}
+ {m:annotation encoding=&apos;MathType-MTEF&apos;}
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamOzamaaBaaaleaacaWGdbaabeaaaaa@371A@{/m:annotation}
+ {/m:semantics}
+ {/m:math} is the sampling frequency, all in units of Hz.
+
+The screencast video of {cnxn target=&quot;video-twopole&quot;/} shows how to create a subVI that implements the two-pole resonator.
+</Val> </String>
+
+<Cluster> <Name>video</Name> <NumElts>4</NumElts>
+<String> <Name>ID (optional)</Name> <Val>video-twopole</Val> </String>
+<String> <Name>video name</Name> <Val>twopole</Val> </String>
+<String> <Name>webpage title</Name> <Val>Two-pole resonator</Val> </String>
+<String> <Name>caption</Name> <Val>Implementing the two-pole resonator in LabVIEW</Val> </String>
+</Cluster>
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+<String> <Name>sec</Name> <Val>Formants for Selected Vowel Sounds</Val> </String>
+
+<String> <Name>para</Name> <Val>
+		Peterson and Barney (see "References" section below) have compiled a list of formant frequencies for common vowels in American English; refer to
+		{cnxn target=&quot;img-voweltable&quot;/}: 
+</Val> </String>
+
+<Cluster> <Name>image</Name> <NumElts>3</NumElts>
+<String> <Name>ID (optional)</Name> <Val>img-voweltable</Val> </String>
+<String> <Name>name</Name> <Val>voweltable</Val> </String>
+<String> <Name>caption</Name> <Val>Formant frequencies for common vowels in American English (from Peterson and Barney, 1952)</Val> </String>
+</Cluster>
+
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+<String> <Name>sec</Name> <Val>Formant Synthesizer</Val> </String>
+
+<String> <Name>para</Name> <Val>
+		The previous sections have laid out all of the pieces you need to create your own formant synthesizer. See if you can set up
+		a LabVIEW VI that pulls the pieces together! The screencast video of {cnxn target=&quot;video-formantsynth&quot;/} shows
+		how your finished design might operate. NOTE: need to provide the relative formant amplitudes as well as the BLP parameters.
+</Val> </String>
+
+<Cluster> <Name>video</Name> <NumElts>4</NumElts>
+<String> <Name>ID (optional)</Name> <Val>video-formantsynth</Val> </String>
+<String> <Name>video name</Name> <Val>formantsynth</Val> </String>
+<String> <Name>webpage title</Name> <Val>Formant synthesis VI</Val> </String>
+<String> <Name>caption</Name> <Val>Formant synthesis LabVIEW VI</Val> </String>
+</Cluster>
+
+
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+<String> <Name>sec</Name> <Val>References</Val> </String>
+
+<Cluster> <Name>list</Name> <NumElts>3</NumElts>
+<EW> <Name>type</Name> <Choice>Bulleted</Choice> <Choice>Enumerated</Choice> <Val>0</Val> </EW>
+<String> <Name>list name (optional)</Name> <Val></Val> </String>
+<Array> <Name>list items</Name> <Dimsize>2</Dimsize>
+	<String> <Name>String</Name> <Val>Moore, F.R., "Elements of Computer Music," Prentice-Hall, 1990, ISBN 0-13-252552-6.</Val> </String>
+	<String> <Name>String</Name> <Val>Peterson, G.E. and H.L. Barney, "Control Methods Used in a Study of the Vowels," Journal of
+			the Acoustical Society of America, vol. 24, 1952.</Val> </String>
+</Array>
+</Cluster>
+
+
+
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+
+</LVData>

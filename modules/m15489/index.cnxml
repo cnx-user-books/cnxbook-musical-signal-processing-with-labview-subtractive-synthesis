@@ -1,0 +1,144 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:m="http://www.w3.org/1998/Math/MathML">
+  <title>Karplus-Strong Plucked String Algorithm</title>
+  <metadata xmlns:md="http://cnx.rice.edu/mdml">
+  <md:content-id>m15489</md:content-id>
+  <md:title>Karplus-Strong Plucked String Algorithm</md:title>
+  <md:abstract>The Karplus-Strong algorithm plucked string algorithm produces remarkably realistic tones with modest computational effort. The algorithm requires a delay line and lowpass filter arranged in a closed loop, which can be implemented as a single digital filter. The filter is driven by a burst of white noise to initiate the sound of the plucked string. Learn about the Karplus-Strong algorithm and how to implement it as a LabVIEW "virtual musical instrument" (VMI) to be played from a MIDI file using "MIDI JamSession."</md:abstract>
+  <md:uuid>fd8a0c5f-15c0-404f-83a4-75815cb108b8</md:uuid>
+</metadata>
+
+<content>
+
+<table id="labview_banner" frame="none" summary=""><tgroup cols="2">
+<colspec rowsep="0" colsep="0"/> <colspec colwidth="6in" rowsep="0" colsep="0"/>
+<tbody>
+  <row>
+    <entry morerows="3"><media id="idm13639360" alt=""><image src="../../media/LabVIEWq.png" mime-type="image/png"/></media></entry>
+    <entry> This module refers to LabVIEW, a software development environment that features a graphical programming language.
+       Please see the <link document="m15428">LabVIEW QuickStart Guide</link> module for tutorials and documentation that will help you:</entry>
+  </row>
+  <row> <entry>• Apply LabVIEW to Audio Signal Processing </entry> </row>
+  <row> <entry>• Get started with LabVIEW</entry> </row>
+  <row> <entry>• Obtain a fully-functional evaluation edition of LabVIEW</entry> </row>
+</tbody>
+</tgroup>
+</table>
+
+
+<section id="sec1">
+<title>Introduction</title>
+
+<para id="par2">
+		In 1983 Kevin Karplus and Alex Strong published an algorithm to emulate the sound of a plucked string (see "References" section).
+		The Karplus-Strong algorithm produces remarkably realistic tones with modest computational effort.</para>
+
+<para id="par3">		As an example, consider the sound of a violin's four strings plucked in succession: 
+		<link resource="violin_plucked.wav">violin_plucked.wav</link> (compare to the same four strings bowed instead of 
+		plucked: <link resource="violin_bowed.wav">violin_bowed.wav</link>). Now compare to the Karplus-Strong 
+		version of the same four pitches: <link resource="ks_plucked.wav">ks_plucked.wav</link>.</para>
+
+<para id="par4">		In this module, learn about the Karplus-Strong plucked string algorithm and how to create
+		a LabVIEW virtual musical instrument (VMI) that you can "play" using a MIDI music file.
+</para>
+
+</section>
+
+<section id="sec5">
+<title>Karplus-Strong Algorithm</title>
+
+<para id="par6">
+		The <link target-id="video-theory"/> screencast video develops the theory of the Karplus-Strong
+		plucked string algorithm, which is based on a closed loop composed of a delay line and a low pass filter.
+		As will be shown, the delay line is initialized with a noise burst, and the continuously circulating
+		noise burst is filtered slightly on each pass through the loop. The output signal is therefore quasi-periodic
+		with a wideband noise-like transient converging to a narrowband signal composed of only a few sinusoidal
+		harmonic components.
+</para>
+
+<figure id="video-theory"><title><link url="https://youtu.be/Z2VWp43yMXQ" window="new">https://youtu.be/Z2VWp43yMXQ</link> (4:59)</title><media id="eip-idm503411024" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/Z2VWp43yMXQ?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Theory of the Karplus-Strong plucked string algorithm
+</caption></figure></section>
+
+<section id="sec8">
+<title>LabVIEW Implementation</title>
+
+<para id="par9">
+		The Karplus-Strong algorithm block diagram may be viewed as a <emphasis>single</emphasis> digital filter 
+		that is excited by a noise pulse. For real-time implementation, the digital filter runs continuously with
+		an input that is normally zero. The filter is "plucked" by applying a burst of white noise that is long
+		enough to completely fill the delay line.</para>
+
+<para id="par10">		As an exercise, review the block diagram shown in <link target-id="video-theory"/> and derive
+		the difference equation that relates the overall output y(n) to the input x(n). Invest some effort in
+		this so that you can develop a better understanding of the algorithm. Watch the video solution in
+		<link target-id="video-diffeqn"/> only <emphasis>after</emphasis> you have completed your own
+		derivation.
+</para>
+
+<figure id="video-diffeqn"><title><link url="https://youtu.be/3LsMCW4SWK4" window="new">https://youtu.be/3LsMCW4SWK4</link> (1:47)</title><media id="eip-idm260683952" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/3LsMCW4SWK4?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Difference equation for Karplus-Strong block diagram
+</caption></figure><para id="par12">
+		The <link target-id="video-build"/> screencast video shows how to implement the difference
+		equation as a digital filter and how to create the noise pulse. The video includes an audio 
+		demonstration of the finished result.
+</para>
+
+<figure id="video-build"><title><link url="https://youtu.be/iA9mk5r3Ix8" window="new">https://youtu.be/iA9mk5r3Ix8</link> (18:44)</title><media id="eip-idm612573024" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/iA9mk5r3Ix8?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Building the Karplus-Strong block diagram in LabVIEW
+</caption></figure></section>
+
+<section id="sec14">
+<title>Project Activity: Karplus-Strong VMI</title>
+
+<para id="par15">
+		In order to better appreciate the musical qualities of the Karplus-Strong plucked string algorithm, 
+		convert the algorithm to a <term>virtual musical instrument</term> (<term>VMI</term> for short) 
+		that can be played by "MIDI Jam Session." If necessary, visit 
+		<link document="m15053">MIDI Jam Session</link>, download the application VI .zip file, and view the 
+		screencast video in that module to learn more about the application and how to create your 
+		own virtual musical instrument. Your VMI will accept parameters that specify 
+		frequency, amplitude, and duration of a single note, and will produce a corresponding array of 
+		audio samples using the Karplus-Strong algorithm described in the previous section.</para>
+
+<para id="par16">		For best results, select a MIDI music file that contains a solo instrument or perhaps a duet.
+		For example, try "Sonata in A Minor for Cello and Bass Continuo" by Antonio Vivaldi. 
+		A MIDI version of the sonata is available at the 
+		<link url="http://www.classicalguitarmidi.com">Classical Guitar MIDI Archives</link>, specifically 
+		<link url="http://www.classicalguitarmidi.com/subivic/Vivaldi_Sonata_Cello_Bass.mid">Vivaldi_Sonata_Cello_Bass.mid</link>.</para>
+
+<para id="par17">
+		Try experimenting with the critical parameters of your instrument, including sampling frequency and
+		the low-pass filter constant
+<m:math>
+ <m:semantics>
+  <m:mi>g</m:mi>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aqatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8srps0lbbf9q8WrFfeuY=Hhbbf9v8qqaqFr0xc9pk0xbba9q8WqFfea0=yr0RYxir=Jbba9q8aq0=yq=He9q8qqQ8frFve9Fve9Ff0dmeaabaqaciGacaGaaeqabaWaaeaaeaaakeaacaWGNbaaaa@3633@</m:annotation>
+ </m:semantics>
+</m:math>.  Regarding sampling frequency: lower sampling frequencies influence
+		the sound in <emphasis>two</emphasis> distinct ways -- can you describe each of these two ways?
+</para>
+
+</section>
+
+<section id="sec18">
+<title>References</title>
+
+<list id="list19" list-type="bulleted">
+
+<item> Moore, F.R., "Elements of Computer Music," Prentice-Hall, 1990, ISBN 0-13-252552-6. </item>
+<item> Karplus, K., and A. Strong, "Digital Synthesis of Plucked String and Drum Timbres," 
+			Computer Music Journal 7(2): 43-55, 1983. </item>
+
+</list>
+
+</section>
+
+</content>
+</document>

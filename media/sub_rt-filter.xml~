@@ -1,0 +1,30 @@
+<!--title = Real-Time Digital Filter in LabVIEW
+-->
+
+<?xml version='1.0' standalone='yes' ?>
+<LVData>
+<Version>8.2</Version>
+
+<String> <Name>para</Name> <Val>
+		A time-varying digital filter can easily be implemented in LabVIEW. The screencast video
+		of {cnxn target=&quot;video-build&quot;/} walks through the complete process to develop
+		a digital filter that operates in real-time and responds to parameter changes from the
+		front panel controls. The video includes an audio demonstration of the finished result,
+		and discusses practical issues such as eliminating clicks in the output signal.
+		The source code for the finished VI is available here: 
+		{link src=&quot;filter_rt.vi&quot;}filter_rt.vi{/link}.
+</Val> </String>
+
+<Cluster> <Name>video</Name> <NumElts>4</NumElts>
+<String> <Name>ID (optional)</Name> <Val>video-build</Val> </String>
+<String> <Name>video name</Name> <Val>build</Val> </String>
+<String> <Name>webpage title</Name> <Val>Time-varying filter</Val> </String>
+<String> <Name>caption</Name> <Val>Building an interactive real-time digital filter in LabVIEW</Val> </String>
+</Cluster>
+
+
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+
+</LVData>

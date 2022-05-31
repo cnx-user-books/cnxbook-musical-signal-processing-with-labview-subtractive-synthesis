@@ -1,0 +1,128 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+  <title>[ mini-project ] Linear Prediction and Cross Synthesis</title>
+  <metadata><md:content-id>undefined</md:content-id><md:title/><md:uuid>ae49f20a-64a7-4eeb-be2f-c5d2f10f4187</md:uuid>
+</metadata>
+
+<content>
+
+<table frame="none" id="labview_banner" summary=""><tgroup cols="2">
+<colspec rowsep="0" colsep="0"/> <colspec colwidth="6in" rowsep="0" colsep="0"/>
+<tbody>
+  <row>
+    <entry morerows="3"><media id="idp4621952" alt=""><image src="../../media/LabVIEWq.png" mime-type="image/png"/></media></entry>
+    <entry> This module refers to LabVIEW, a software development environment that features a graphical programming language.
+       Please see the <link document="m15428">LabVIEW QuickStart Guide</link> module for tutorials and documentation that will help you:</entry>
+  </row>
+  <row> <entry>• Apply LabVIEW to Audio Signal Processing </entry> </row>
+  <row> <entry>• Get started with LabVIEW</entry> </row>
+  <row> <entry>• Obtain a fully-functional evaluation edition of LabVIEW</entry> </row>
+</tbody>
+</tgroup>
+</table>
+
+
+<section id="sec1">
+<title>Objective</title>
+
+<para id="par2">
+		<term>Linear prediction</term> is a method used to estimate a time-varying filter, often as a model of a vocal tract. 
+		Musical applications of linear prediction substitute various signals as excitation sources for the time-varying filter.</para>
+
+<para id="par3">		This mini-project will give you chance to develop the basic technique for computing and applying a time-varying filter. 
+		Next, you will experiment with different excitation sources and linear prediction model parameters. 
+		Finally, you will learn about cross-synthesis.
+</para>
+
+</section>
+
+<section id="sec4">
+<title>Prerequisite Modules</title>
+
+<para id="par5">
+If you have not done so already, please study the prerequisite modules 
+<link document="m15478">Linear Prediction and Cross Synthesis</link>.
+If you are relatively new to LabVIEW, consider taking the course <link document="col10440">LabVIEW Techniques for Audio Signal Processing</link>  which provides the foundation you need to complete this mini-project activity, including working with arrays, creating subVIs, playing an array to the soundcard, and saving an array as a .wav sound file.
+</para>
+
+</section>
+
+<section id="sec6">
+<title>Deliverables</title>
+
+<list id="list7" list-type="bulleted">
+
+<item> All LabVIEW code that you develop (block diagrams and front panels) </item>
+<item> All generated sounds in .wav format </item>
+<item> Any plots or diagrams requested </item>
+<item> Summary write-up of your results </item>
+
+</list>
+
+</section>
+
+<section id="sec8">
+<title>Part 1: Framing and De-Framing</title>
+
+<para id="par9">
+		Time-varying filters operate by applying a fixed set of coefficients on short blocks (or "frames") of the signal; 
+		the coefficients are varied from one frame to the next. In this part you will develop the basic technique used to 
+		"frame" and "de-frame" a signal so that a filter can be applied individually to each frame.
+</para>
+
+<para id="par10">
+		<media id="idm6267152" alt=""><image src="../../media/LabVIEW.png" mime-type="image/png"/></media> Download and open <link resource="framing.vi">framing.vi</link>. 
+</para>
+
+<para id="par11">
+		The "Reshape Array" node forms the heart of 
+		framing and de-framing, since you can reshape the incoming 1-D signal vector into a 2-D array of frames. 
+		The auto-indexing feature of the "for loop" structure automatically loops over all of the frames, so it is not necessary 
+		to wire a value to the loop termination terminal. You can access the individual frame as a 1-D vector inside the loop structure.
+		Auto-indexing is also used on the loop output to create a new 2-D array, so "Reshape Array" is again used to convert 
+		the signal back to a 1-D vector.</para>
+
+<para id="par12">		Study the entire VI, including the unconnected blocks which you will find useful. Complete the VI so that you can 
+		select frame sizes of between 1 and 9. Enable the "Highlight Execution" option, and display your block diagram and 
+		front panel simultaneously (press Ctrl-T). Convince yourself that your technique works properly. For example, when 
+		you select a frame size of 2, you should observe that the front-panel indicator "frame" displays "0,1", then "2,3", then "4,5", 
+		and so on. You should also observe that the "out" indicator matches the original.
+</para>
+
+</section>
+
+<section id="sec13">
+<title>Part 2: Time-Varying Filter Using Linear Prediction</title>
+
+<para id="par14">
+		<media id="idm47536" alt=""><image src="../../media/LabVIEW.png" mime-type="image/png"/></media> Download the file <link resource="part2.zip">part2.zip</link>, a .zip archive that contains three VIs: part2.vi, blp.vi (band-limited pulse source), and
+		WavRead.vi (reads a .wav audio file). Complete this VI by creating your own "Framer" and "DeFramer" VIs using the techniques you developed in Part 1.
+</para>
+
+<para id="par15">
+		Create or find a speech-type .wav file to use as a basis for the linear prediction filter. Vary the frame size and filter order parameters 
+		as well as the various type of excitation sources. Study the effect of each parameter and discuss your results. 
+		
+		Submit one or two representative .wav files.
+</para>
+
+</section>
+
+<section id="sec16">
+<title>Part 3: Cross Synthesis</title>
+
+<para id="par17">
+		"Cross synthesis" applies the spectral envelope of one signal (e.g., speech) 
+		to another signal (e.g., a musical instrument). Find or create a speech signal and use it to generate a time-varying filter. 
+		Find or create a music signal and use it as the excitation. The sound files should have the same sampling frequency.</para>
+
+<para id="par18">		Repeat for a second set of signals. You might also try cross synthesizing two different speech signals or two different music signals.</para>
+
+<para id="par19">		Show your results, particularly the spectrograms of the two original signals and the spectrogram of the output signal.</para>
+
+<para id="par20">		Select your favorite result and submit .wav files of the two source signals and the output signal.
+</para>
+
+</section>
+
+</content>
+</document>

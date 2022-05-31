@@ -1,0 +1,240 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:m="http://www.w3.org/1998/Math/MathML">
+  <title>Formant (Vowel) Synthesis</title>
+  <metadata xmlns:md="http://cnx.rice.edu/mdml">
+  <md:content-id>m15459</md:content-id>
+  <md:title>Formant (Vowel) Synthesis</md:title>
+  <md:abstract>Speech and singing contain a mixture of voiced and un-voiced sounds (sibilants like “s”). The spectrum of a voiced sound contains characteristic resonant peaks called formants caused by frequency shaping of the vocal tract. In this module, a formant synthesizer is developed and implemented in LabVIEW. The filter is implemented as a set of parallel two-pole resonators (bandpass filters) that filter a band-limited pulse source.</md:abstract>
+  <md:uuid>7bc35dbe-d552-4d28-87a4-92857b461014</md:uuid>
+</metadata>
+
+<content>
+
+<table id="labview_banner" frame="none" summary=""><tgroup cols="2">
+<colspec rowsep="0" colsep="0"/> <colspec colwidth="6in" rowsep="0" colsep="0"/>
+<tbody>
+  <row>
+    <entry morerows="3"><media id="idp12848816" alt=""><image src="../../media/LabVIEWq.png" mime-type="image/png"/></media></entry>
+    <entry> This module refers to LabVIEW, a software development environment that features a graphical programming language.
+       Please see the <link document="m15428">LabVIEW QuickStart Guide</link> module for tutorials and documentation that will help you:</entry>
+  </row>
+  <row> <entry>• Apply LabVIEW to Audio Signal Processing </entry> </row>
+  <row> <entry>• Get started with LabVIEW</entry> </row>
+  <row> <entry>• Obtain a fully-functional evaluation edition of LabVIEW</entry> </row>
+</tbody>
+</tgroup>
+</table>
+
+
+<section id="sec1">
+<title>Introduction</title>
+
+<para id="par2">
+		Speech and singing contain a mixture of voiced and un-voiced sounds. Voiced sounds associate
+		with the vowel portions of words, while unvoiced sounds are produced when uttering consonants
+		like "s." The spectrum of a voiced sound contains characteristic resonant peaks
+		called <term>formants</term>, and are the result of frequency shaping produced by
+		the <term>vocal tract</term> (mouth as well as nasal passage), a complex time-varying resonant cavity.</para>
+
+<para id="par3">		In this module, a <term>formant synthesizer</term> is developed and implemented in LabVIEW. The
+		subtractive synthesis model of a wideband excitation source shaped by a digital filter is applied
+		here. The filter is implemented as a set of parallel two-pole resonators (bandpass filters) that
+		filter a band-limited pulse. Refer to the modules <link document="m15456">Subtractive Synthesis Concepts</link> 
+		and <link document="m15457">Band-Limited Pulse Generator</link> for more details.
+</para>
+
+</section>
+
+<section id="sec4">
+<title>Formant Synthesis Technique</title>
+
+<para id="par5">
+		The <link target-id="video-technique"/> screencast video develops the general approach to formant synthesis:
+</para>
+
+<figure id="video-technique"><title><link url="https://youtu.be/QS0iAyXWs5I" window="new">https://youtu.be/QS0iAyXWs5I</link> (3:51)</title><media id="eip-idm267477872" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/QS0iAyXWs5I?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Formant synthesis technique
+</caption></figure><para id="par7">
+		The mathematics of the band-limited pulse generator and its LabVIEW implementation are presented in the module 
+		<link document="mm15457">Band-Limited Pulse Generator</link>.</para>
+
+<para id="par8">		The two-pole resonator is an IIR (infinite impulse response) digital filter defined by <link target-id="eqn-resonator"/>
+		(see Moore in the "References" section for additional details):
+</para>
+
+<equation id="eqn-resonator">
+
+
+
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:mi>H</m:mi><m:mo stretchy="false">(</m:mo><m:mi>z</m:mi><m:mo stretchy="false">)</m:mo><m:mo>=</m:mo><m:mo stretchy="false">(</m:mo><m:mn>1</m:mn><m:mo>−</m:mo><m:mi>R</m:mi><m:mo stretchy="false">)</m:mo><m:mfrac>
+    <m:mrow>
+     <m:mn>1</m:mn><m:mo>−</m:mo><m:mi>R</m:mi><m:msup>
+      <m:mi>z</m:mi>
+      <m:mrow>
+       <m:mo>−</m:mo><m:mn>2</m:mn>
+      </m:mrow>
+     </m:msup>
+    </m:mrow>
+    <m:mrow>
+     <m:mn>1</m:mn><m:mo>−</m:mo><m:mn>2</m:mn><m:mi>R</m:mi><m:mi>cos</m:mi><m:mo>⁡</m:mo><m:mi>θ</m:mi><m:msup>
+      <m:mi>z</m:mi>
+      <m:mrow>
+       <m:mo>−</m:mo><m:mn>1</m:mn>
+      </m:mrow>
+     </m:msup>
+     <m:mo>+</m:mo><m:msup>
+      <m:mi>R</m:mi>
+      <m:mn>2</m:mn>
+     </m:msup>
+     <m:msup>
+      <m:mi>z</m:mi>
+      <m:mrow>
+       <m:mo>−</m:mo><m:mn>2</m:mn>
+      </m:mrow>
+     </m:msup>
+    </m:mrow>
+   </m:mfrac>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamisaiaacIcacaWG6bGaaiykaiabg2da9iaacIcacaaIXaGaeyOeI0IaamOuaiaacMcadaWcaaqaaiaaigdacqGHsislcaWGsbGaamOEamaaCaaaleqabaGaeyOeI0IaaGOmaaaaaOqaaiaaigdacqGHsislcaaIYaGaamOuaiGacogacaGGVbGaai4CaiabeI7aXjaadQhadaahaaWcbeqaaiabgkHiTiaaigdaaaGccqGHRaWkcaWGsbWaaWbaaSqabeaacaaIYaaaaOGaamOEamaaCaaaleqabaGaeyOeI0IaaGOmaaaaaaaaaa@52CF@</m:annotation>
+ </m:semantics>
+</m:math>
+
+</equation>
+
+<para id="par10">
+		where
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:mi>θ</m:mi><m:mo>=</m:mo><m:mn>2</m:mn><m:mi>π</m:mi><m:mrow><m:mrow>
+    <m:mo stretchy="false">(</m:mo><m:msub>
+     <m:mi>f</m:mi>
+     <m:mi>C</m:mi>
+    </m:msub>
+   </m:mrow><m:mo>/</m:mo><m:mrow>
+    <m:msub>
+     <m:mi>f</m:mi>
+     <m:mi>S</m:mi>
+    </m:msub>
+   </m:mrow></m:mrow>
+   <m:mo stretchy="false">)</m:mo>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaeqiUdeNaeyypa0JaaGOmaiabec8aWnaalyaabaGaaiikaiaadAgadaWgaaWcbaGaam4qaaqabaaakeaacaWGMbWaaSbaaSqaaiaadofaaeqaaaaakiaacMcaaaa@3FC1@</m:annotation>
+ </m:semantics>
+ </m:math>,
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:mi>R</m:mi><m:mo>=</m:mo><m:msup>
+    <m:mi>e</m:mi>
+    <m:mrow>
+     <m:mo>−</m:mo><m:mi>π</m:mi><m:mi>B</m:mi><m:mo>/</m:mo><m:msub>
+      <m:mi>f</m:mi>
+      <m:mi>S</m:mi>
+     </m:msub>
+    </m:mrow>
+   </m:msup>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamOuaiabg2da9iaadwgadaahaaWcbeqaaiabgkHiTiabec8aWjaadkeacaGGVaGaamOzamaaBaaameaacaWGtbaabeaaaaaaaa@3E43@</m:annotation>
+ </m:semantics>
+ </m:math>, 
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:msub>
+    <m:mi>f</m:mi>
+    <m:mi>C</m:mi>
+   </m:msub>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamOzamaaBaaaleaacaWGdbaabeaaaaa@371A@</m:annotation>
+ </m:semantics>
+ </m:math> is the center frequency,
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mi>B</m:mi>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamOqaaaa@3602@</m:annotation>
+ </m:semantics>
+</m:math> is the bandwidth, and
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:msub>
+    <m:mi>f</m:mi>
+    <m:mi>S</m:mi>
+   </m:msub>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamOzamaaBaaaleaacaWGdbaabeaaaaa@371A@</m:annotation>
+ </m:semantics>
+ </m:math> is the sampling frequency, all in units of Hz.</para>
+
+<para id="par11">The <link target-id="video-twopole"/> screencast video shows how to create a subVI that implements the two-pole resonator.
+</para>
+
+<figure id="video-twopole"><title><link url="https://youtu.be/GYKxVxv0g_M" window="new">https://youtu.be/GYKxVxv0g_M</link> (7:41)</title><media id="eip-idm398272720" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/GYKxVxv0g_M?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Implementing the two-pole resonator in LabVIEW
+</caption></figure></section>
+
+<section id="sec13">
+<title>Formants for Selected Vowel Sounds</title>
+
+<para id="par14">
+		Peterson and Barney (see "References" section) have compiled a list of formant frequencies for common vowels in American English; refer to
+		<link target-id="img-voweltable"/>: 
+</para>
+
+<figure id="img-voweltable">
+<media id="idp6244208" alt=""><image src="../../media/sub_formants-voweltable.png" mime-type="image/png"/></media>
+<caption>
+   Formant frequencies for common vowels in American English (from Peterson and Barney, 1952)
+</caption>
+</figure>
+
+</section>
+
+<section id="sec16">
+<title>Formant Synthesizer</title>
+
+<para id="par17">
+		The previous sections have laid out all of the pieces you need to create your own formant synthesizer. See if you can set up
+		a LabVIEW VI that pulls the pieces together. The <link target-id="video-formantsynth"/> screencast video shows
+		how your finished design might operate. The video also discusses how to choose the relative formant amplitudes and bandwidths, as well as the BLP source parameters.
+</para>
+
+<figure id="video-formantsynth"><title><link url="https://youtu.be/E1c1W-MvYgQ" window="new">https://youtu.be/E1c1W-MvYgQ</link> (3:15)</title><media id="eip-idm404562880" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/E1c1W-MvYgQ?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Formant synthesis LabVIEW VI
+</caption></figure></section>
+
+<section id="sec19">
+<title>References</title>
+
+<list id="list20" list-type="bulleted">
+
+<item> Moore, F.R., "Elements of Computer Music," Prentice-Hall, 1990, ISBN 0-13-252552-6. </item>
+<item> Peterson, G.E., and H.L. Barney, "Control Methods Used in a Study of the Vowels," Journal of
+			the Acoustical Society of America, vol. 24, 1952. </item>
+
+</list>
+
+</section>
+
+</content>
+</document>

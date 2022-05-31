@@ -1,0 +1,212 @@
+<!--title = Band-Limited Pulse Generator
+-->
+
+<?xml version='1.0' standalone='yes' ?>
+<LVData>
+<Version>8.2</Version>
+
+<!-------------------------------------------------------->
+<String> <Name>sec</Name> <Val>Introduction</Val> </String>
+
+<String> <Name>para</Name> <Val>
+		{term}Subtractive synthesis{/term} techniques apply a filter (usually time-varying) to a 
+		wideband excitation source such as noise or a pulse train. The filter 
+		shapes the wideband spectrum into the desired spectrum. The excitation/filter technique describes
+		the sound-producing mechanism of many types of physical instruments as well as the human voice, making
+		subtractive synthesis an attractive method for {term}physical modeling{/term} of real instruments.
+
+		A {term}pulse train{/term} is a repetitive series of pulses. A pulse train provides an excitation source that has
+		a perceptible pitch, so in a sense the excitation spectrum is "pre-shaped" before applying it to a filter. The
+		spectrum of a pulse train contains spectral energy that clusters around the harmonics of the fundamental frequency.
+		Many types of musical instruments use some sort of pulse train as an excitation, notably wind instruments such
+		as brass (trumpet, trombone, tuba) and woodwinds (clarinet, saxophone, oboe, bassoon). Likewise, the human
+		voice begins as a series of pulses produced by the vibration of the vocal cords, which can be considered
+		the "excitation signal" to the vocal and nasal tract that acts as a resonant cavity the amplifies and filters
+		the original sound from the vocal cords.
+
+		Traditional rectangular pulse shapes have significant spectral energy contained in harmonics that extend beyond 
+		the {term}folding frequency{/term} (half of the sampling frequency). These harmonics are subject to {term}aliasing{/term},
+		and are "folded back" into the {term}principal alias{/term}, i.e., the spectrum between 0 and
+{m:math}
+ {m:semantics}
+  {m:mrow}
+   {m:msub}
+    {m:mi}f{/m:mi}
+    {m:mi}s{/m:mi}
+   {/m:msub}
+   {m:mo}/{/m:mo}{m:mn}2{/m:mn}
+  {/m:mrow}
+ {m:annotation encoding=&apos;MathType-MTEF&apos;}
+ {/m:annotation}
+ {/m:semantics}
+{/m:math}. The aliased harmonics are distinctly audible as high-frequency tones that, since undesired, are called noise.
+
+		The {term}band-limited pulse{/term}, however, is free of aliasing problems since its maximum harmonic can be
+		adjusted to be below the folding frequency. In this module the mathematics behind the band-limited pulse are
+		developed, and a LabVIEW-based band-limited pulse generator is implemented.
+</Val> </String>
+
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+<String> <Name>sec</Name> <Val>Mathematical Development of the Band-Limited Pulse</Val> </String>
+
+<String> <Name>para</Name> <Val>
+		By definition, a {term}band-limited pulse{/term} has zero spectral energy beyond some determined frequency.
+		A truncated Fourier series can be used to create a series of harmonics, or sinusoids, as in 
+		{cnxn target=&quot;eqn-fs&quot;/}:
+</Val> </String>
+
+<Cluster> <Name>equation</Name> <NumElts>3</NumElts>
+<String> <Name>ID (optional)</Name> <Val>eqn-fs</Val> </String>
+<String> <Name>name (optional)</Name> <Val></Val> </String>
+<String> <Name>MathML text</Name> <Val>
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+{m:math}
+ {m:semantics}
+  {m:mrow}
+   {m:mi}x{/m:mi}{m:mo stretchy=&apos;false&apos;}({/m:mo}{m:mi}t{/m:mi}{m:mo stretchy=&apos;false&apos;}){/m:mo}{m:mo}={/m:mo}{m:mstyle displaystyle=&apos;true&apos;}
+    {m:munderover}
+     {m:mo}&amp;#x2211;{/m:mo}
+     {m:mrow}
+      {m:mi}k{/m:mi}{m:mo}={/m:mo}{m:mn}1{/m:mn}
+     {/m:mrow}
+     {m:mi}N{/m:mi}
+    {/m:munderover}
+    {m:mrow}
+     {m:mi}sin{/m:mi}{m:mo}&amp;#x2061;{/m:mo}{m:mo stretchy=&apos;false&apos;}({/m:mo}{m:mn}2{/m:mn}{m:mi}&amp;#x03C0;{/m:mi}{m:mi}k{/m:mi}{m:msub}
+      {m:mi}f{/m:mi}
+      {m:mn}0{/m:mn}
+     {/m:msub}
+     {m:mi}t{/m:mi}{m:mo stretchy=&apos;false&apos;}){/m:mo}
+    {/m:mrow}
+   {/m:mstyle}
+  {/m:mrow}
+ {m:annotation encoding=&apos;MathType-MTEF&apos;}
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamiEaiaacIcacaWG0bGaaiykaiabg2da9maaqahabaGaci4CaiaacMgacaGGUbGaaiikaiaaikdacqaHapaCcaWGRbGaamOzamaaBaaaleaacaaIWaaabeaakiaadshacaGGPaaaleaacaWGRbGaeyypa0JaaGymaaqaaiaad6eaa0GaeyyeIuoaaaa@49C4@{/m:annotation}
+ {/m:semantics}
+{/m:math}
+</Val> </String>
+</Cluster>
+
+<String> <Name>para</Name> <Val>
+		The screencast video of {cnxn target=&quot;video-blp-tonenoise&quot;/} shows how to implement {cnxn target=&quot;eqn-fs&quot;/} in LabVIEW by
+		introducing the "Tone and Noise" built-in subVI that is part of the "Signal Processing" palette. The video includes a demonstration that relates
+		the time-domain pulse shape, spectral behavior, and audible sound of the band-limited pulse. The finished VI is available here:
+		{link src=&quot;blp_demo.vi&quot;}blp_demo.vi{/link}.
+</Val> </String>
+
+<Cluster> <Name>video</Name> <NumElts>4</NumElts>
+<String> <Name>ID (optional)</Name> <Val>video-blp-tonenoise</Val> </String>
+<String> <Name>video name</Name> <Val>tonenoise</Val> </String>
+<String> <Name>webpage title</Name> <Val>Band-limited pulse</Val> </String>
+<String> <Name>caption</Name> <Val>Band-limited pulse generator in LabVIEW using "Tone and Noise" built-in subVI</Val> </String>
+</Cluster>
+
+<String> <Name>para</Name> <Val>
+		The truncated Fourier series approach works fine for off-line or batch-processing mode of signal processing. However, in a real-time
+		application the computational cost of generating individual sinusoids becomes prohibitive, especially when a fairly dense spectrum
+		is required (for example, 50 sinusoids).
+
+		A closed-form version of the truncated Fourier series equation is presented in {cnxn target=&quot;eqn-closedform&quot;/} (refer to
+		Moore in "References" section below):
+</Val> </String>
+
+<Cluster> <Name>equation</Name> <NumElts>3</NumElts>
+<String> <Name>ID (optional)</Name> <Val>eqn-closedform</Val> </String>
+<String> <Name>name (optional)</Name> <Val></Val> </String>
+<String> <Name>MathML text</Name> <Val>
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+{m:math}
+ {m:semantics}
+  {m:mrow}
+   {m:mi}x{/m:mi}{m:mo stretchy=&apos;false&apos;}({/m:mo}{m:mi}t{/m:mi}{m:mo stretchy=&apos;false&apos;}){/m:mo}{m:mo}={/m:mo}{m:mstyle displaystyle=&apos;true&apos;}
+    {m:munderover}
+     {m:mo}&amp;#x2211;{/m:mo}
+     {m:mrow}
+      {m:mi}k{/m:mi}{m:mo}={/m:mo}{m:mn}1{/m:mn}
+     {/m:mrow}
+     {m:mi}N{/m:mi}
+    {/m:munderover}
+    {m:mrow}
+     {m:mi}sin{/m:mi}{m:mo}&amp;#x2061;{/m:mo}{m:mo stretchy=&apos;false&apos;}({/m:mo}{m:mi}k{/m:mi}{m:mi}&amp;#x03B8;{/m:mi}{m:mo stretchy=&apos;false&apos;}){/m:mo}{m:mo}={/m:mo}{m:mi}sin{/m:mi}{m:mo}&amp;#x2061;{/m:mo}{m:mrow}{m:mo}[{/m:mo} {m:mrow}
+      {m:mo stretchy=&apos;false&apos;}({/m:mo}{m:mi}N{/m:mi}{m:mo}+{/m:mo}{m:mn}1{/m:mn}{m:mo stretchy=&apos;false&apos;}){/m:mo}{m:mfrac}
+       {m:mi}&amp;#x03B8;{/m:mi}
+       {m:mn}2{/m:mn}
+      {/m:mfrac}
+     {/m:mrow} {m:mo}]{/m:mo}{/m:mrow}
+    {/m:mrow}
+   {/m:mstyle}{m:mfrac}
+    {m:mrow}
+     {m:mi}sin{/m:mi}{m:mo}&amp;#x2061;{/m:mo}{m:mrow}{m:mo}({/m:mo}
+      {m:mrow}
+       {m:mi}N{/m:mi}{m:mfrac}
+        {m:mi}&amp;#x03B8;{/m:mi}
+        {m:mn}2{/m:mn}
+       {/m:mfrac}
+      {/m:mrow}
+     {m:mo}){/m:mo}{/m:mrow}
+    {/m:mrow}
+    {m:mrow}
+     {m:mi}sin{/m:mi}{m:mo}&amp;#x2061;{/m:mo}{m:mrow}{m:mo}({/m:mo}
+      {m:mrow}
+       {m:mfrac}
+        {m:mi}&amp;#x03B8;{/m:mi}
+        {m:mn}2{/m:mn}
+       {/m:mfrac}
+      {/m:mrow}
+     {m:mo}){/m:mo}{/m:mrow}
+    {/m:mrow}
+   {/m:mfrac}
+  {/m:mrow}
+ {m:annotation encoding=&apos;MathType-MTEF&apos;}
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamiEaiaacIcacaWG0bGaaiykaiabg2da9maaqahabaGaci4CaiaacMgacaGGUbGaaiikaiaadUgacqaH4oqCcaGGPaGaeyypa0Jaci4CaiaacMgacaGGUbWaamWaaeaacaGGOaGaamOtaiabgUcaRiaaigdacaGGPaWaaSaaaeaacqaH4oqCaeaacaaIYaaaaaGaay5waiaaw2faaaWcbaGaam4Aaiabg2da9iaaigdaaeaacaWGobaaniabggHiLdGcdaWcaaqaaiGacohacaGGPbGaaiOBamaabmaabaGaamOtamaalaaabaGaeqiUdehabaGaaGOmaaaaaiaawIcacaGLPaaaaeaaciGGZbGaaiyAaiaac6gadaqadaqaamaalaaabaGaeqiUdehabaGaaGOmaaaaaiaawIcacaGLPaaaaaaaaa@60FB@{/m:annotation}
+ {/m:semantics}
+{/m:math}
+</Val> </String>
+</Cluster>
+
+<String> <Name>para</Name> <Val>
+		where
+<!-- MathType@Translator@5@5@MathML2 (m namespace).tdl@MathML 2.0 (m namespace)@ -->
+{m:math}
+ {m:semantics}
+  {m:mrow}
+   {m:mi}&amp;#x03B8;{/m:mi}{m:mo}={/m:mo}{m:mn}2{/m:mn}{m:mi}&amp;#x03C0;{/m:mi}{m:msub}
+    {m:mi}f{/m:mi}
+    {m:mn}0{/m:mn}
+   {/m:msub}
+   {m:mi}t{/m:mi}
+  {/m:mrow}
+ {m:annotation encoding=&apos;MathType-MTEF&apos;}
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaeqiUdeNaeyypa0JaaGOmaiabec8aWjaadAgadaWgaaWcbaGaaGimaaqabaGccaWG0baaaa@3D44@{/m:annotation}
+ {/m:semantics}
+ {/m:math}. The closed-form version of the summation requires only three sinusoidal oscillators yet can produce an arbitrary number of sinusoidal components.
+
+ Implementing {cnxn target=&quot;eqn-closedform&quot;/} contains one significant challenge, however. Note the ratio of two sinsoids on the far right
+ of the equation. The denominator sinusoid periodically passes through zero, leading to a divide-by-zero error. However, since the numerator sinusoid
+ operates at a frequency that is N times higher, the numerator sinusoid also approaches zero whenever the lower-frequency denominator sinusoid
+ approaches zero. This "0/0" condition converges to either N or -N; the sign can be inferred by looking at adjacent samples.
+</Val> </String>
+
+
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+<String> <Name>sec</Name> <Val>References</Val> </String>
+
+<Cluster> <Name>list</Name> <NumElts>3</NumElts>
+<EW> <Name>type</Name> <Choice>Bulleted</Choice> <Choice>Enumerated</Choice> <Val>0</Val> </EW>
+<String> <Name>list name (optional)</Name> <Val></Val> </String>
+<Array> <Name>list items</Name> <Dimsize>1</Dimsize>
+	<String> <Name>String</Name> <Val>Moore, F.R., "Elements of Computer Music," Prentice-Hall, 1990, ISBN 0-13-252552-6.</Val> </String>
+</Array>
+</Cluster>
+
+
+
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+
+</LVData>

@@ -1,0 +1,127 @@
+<!--title = Subtractive Synthesis Concepts
+-->
+
+<?xml version='1.0' standalone='yes' ?>
+<LVData>
+<Version>8.2</Version>
+
+<!-------------------------------------------------------->
+<String> <Name>sec</Name> <Val>Subtractive Synthesis Model</Val> </String>
+
+<String> <Name>para</Name> <Val>
+		{term}Subtractive synthesis{/term} describes a wide range of synthesis techniques that apply a
+		filter (usually time-varying) to a wideband excitation source such as noise or a pulse train. The filter 
+		shapes the wideband spectrum into the desired spectrum. The excitation/filter technique describes
+		the sound-producing mechanism of many types of physical instruments as well as the human voice, making
+		subtractive synthesis an attractive method for {term}physical modeling{/term} of real instruments.
+
+		{cnxn target=&quot;fig-model&quot;/} illustrates the general model of subtractive synthesis.
+		The excitation source parameters may include amplitude, bandwidth, and frequency (for repetitive
+		pulse train input), and each parameter may change independently as a function of time. The filter
+		parameters likewise may vary with time, and include center frequency, bandwidth, and resonant gain.
+</Val> </String>
+
+<Cluster> <Name>image</Name> <NumElts>3</NumElts>
+<String> <Name>ID (optional)</Name> <Val>fig-model</Val> </String>
+<String> <Name>name</Name> <Val>model</Val> </String>
+<String> <Name>caption</Name> <Val>Model of the subtractive synthesis process</Val> </String>
+</Cluster>
+
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+<String> <Name>sec</Name> <Val>Excitation Sources</Val> </String>
+
+<String> <Name>para</Name> <Val>
+		Excitation sources for subtractive synthesis must be {term}wideband{/term} in nature, i.e., they must contain significant
+		spectral energy over a wide frequency range. A {term}white noise{/term} source is an idealized source that contains
+		constant energy over all frequencies. Practical noise sources do not have infinite bandwidth, but can create uniform
+		spectral energy over a suitable range such as the audio spectrum.
+
+		Random number generators form the basis of a variety of noise sources on digital computers. For example, the LabVIEW
+		"Signal Processing" palette contains the following noise sources: uniform, Gaussian, random, gamma, Poisson, 
+		binomial, and Bernoulli.
+
+		A {term}pulse train{/term} is a repetitive series of pulses. A pulse train provides an excitation source that has
+		a perceptible pitch, so in a sense the excitation spectrum is "pre-shaped" before applying it to a filter. The
+		spectrum of a pulse train contains spectral energy that clusters around the harmonics of the fundamental frequency.
+		Many types of musical instruments use some sort of pulse train as an excitation, notably wind instruments such
+		as brass (trumpet, trombone, tuba) and woodwinds (clarinet, saxophone, oboe, bassoon). For example, consider the
+		trumpet and its mouthpiece ({cnxn target=&quot;img-trumpet&quot;/} and {cnxn target=&quot;img-mouthpiece&quot;/}, respectively).
+		Listen to the "buzzing" sound of the trumpet mouthpiece alone {link src=&quot;trumpet_mouthpiece.wav&quot;}trumpet_mouthpiece.wav{/link}, and
+		then compare to the mouthpiece plus trumpet {link src=&quot;trumpet&quot;}trumpet{/link}. {cnxn target=&quot;img-trumpet-spectrum&quot;/} 
+		compares the time-domain waveform and frequency spectrum of each sound. Both sounds are the same pitch, so the
+		same harmonics are visible in each. However, the mouthpiece buzz contains more spectral energy at higher frequencies.
+</Val> </String>
+
+<Cluster> <Name>image</Name> <NumElts>3</NumElts>
+<String> <Name>ID (optional)</Name> <Val>img-trumpet</Val> </String>
+<String> <Name>name</Name> <Val>trumpet</Val> </String>
+<String> <Name>caption</Name> <Val>Trumpet instrument, a member of the brass family</Val> </String>
+</Cluster>
+
+<Cluster> <Name>image</Name> <NumElts>3</NumElts>
+<String> <Name>ID (optional)</Name> <Val>img-mouthpiece</Val> </String>
+<String> <Name>name</Name> <Val>mouthpiece</Val> </String>
+<String> <Name>caption</Name> <Val>Trumpet mouthpiece, approximately three inches in length</Val> </String>
+</Cluster>
+
+<Cluster> <Name>image</Name> <NumElts>3</NumElts>
+<String> <Name>ID (optional)</Name> <Val>img-trumpet-spectrum</Val> </String>
+<String> <Name>name</Name> <Val>trumpet-spectrum</Val> </String>
+<String> <Name>caption</Name> <Val>Comparison of trumpet mouthpiece alone and mouthpiece-plus-trumpet signals</Val> </String>
+</Cluster>
+
+
+
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+<String> <Name>sec</Name> <Val>Time-Varying Digital Filters</Val> </String>
+
+<String> <Name>para</Name> <Val>
+		Time-varying digital filters are typically implemented with {term}block processing{/term}, in which an input
+		signal is subdivided into short blocks (also called {term}frames{/term}) for filtering. Each frame is
+		processed by a constant-coefficient digital filter. However, the constants change from one frame to the
+		next, thereby creating the effect of a time-varying filter.
+
+		The choice of {term}frame length{/term} involves a trade-off between the rate at which the filter coefficients
+		must change and the amount of time required for the filter's transient response. Higher-order filters require
+		more time to reach steady state, and the frame length should be no shorter than the length of the 
+		filter's impulse response.
+
+		Digital filters may be broadly classified as either {term}finite impulse response{/term} ({term}FIR{/term}) or
+		{term}infinite impulse response{/term} ({term}IIR{/term}). The latter type is preferred for most implementations
+		(especially for real-time filtering) since IIR filters have many fewer coefficients than comparable FIR filters.
+		However, IIR filters have the disadvantage of potential stability problems, especially when finite-precision
+		calculations are used.
+
+		The digital filter coefficients usually are calculated independently for each frame. That is, it is generally not
+		possible to calculate only two sets of filter coefficients and then interpolate in between. For example, suppose
+		a digital filter is required to have a cutoff frequency that varies anywhere from 100 Hz to 5,000 Hz. Ideally one
+		would be able to calculate a set of filter coefficients for the 100 Hz filter and another set for the 5,000 Hz filter,
+		and then use linear interpolation to determine the coefficients for any intermediate frequency, i.e., 650 Hz.
+		Unfortunately the interpolation technique does not work. For off-line or batch-type processing, filter coefficients
+		can be computed for each frame. For real-time implementation, the filter coefficients must be pre-computed and
+		stored in a lookup table for fast retrieval.
+
+		The following LabVIEW interactive VI illustrates why it is generally not possible to interpolate filter coefficients
+		between blocks. Try this: increase the "low cutoff frequency" slider and observe the values of the coefficients. Some
+		coefficients vary monotonically	(such as a[1]), but others such as a[2] decrease and then increase again. Still
+		others such as the "b" coefficients remain at a constant level and then begin increasing. You can also try different
+		filter types (highpass, bandpass, bandstop) and filter orders.
+</Val> </String>
+
+<Cluster> <Name>vi</Name> <NumElts>3</NumElts>
+<String> <Name>name</Name> <Val>filter_coeffs</Val> </String>
+<I32> <Name>width</Name> <Val>833</Val> </I32>
+<I32> <Name>height</Name> <Val>440</Val> </I32>
+</Cluster>
+
+
+
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+
+</LVData>

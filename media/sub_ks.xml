@@ -1,0 +1,129 @@
+<!--title = Karplus-Strong Plucked String Algorithm
+-->
+
+<?xml version='1.0' standalone='yes' ?>
+<LVData>
+<Version>8.2</Version>
+
+<!-------------------------------------------------------->
+<String> <Name>sec</Name> <Val>Introduction</Val> </String>
+
+<String> <Name>para</Name> <Val>
+		In 1983 Kevin Karplus and Alex Strong published an algorithm to emulate the sound of a plucked string (see "References" section).
+		The Karplus-Strong algorithm produces remarkably realistic tones with modest computational effort.
+
+		As an example, consider the sound of a violin's four strings plucked in succession: 
+		{link src=&quot;violin-plucked.wav&quot;}violin-plucked.wav{/link} (compare to the same four strings bowed instead of 
+		plucked: {link src=&quot;violin-bowed.wav&quot;}violin-bowed.wav{/link}). Now compare to the Karplus-Strong 
+		version of the same four pitches: {link src=&quot;ks-plucked.wav&quot;}ks-plucked.wav{/link}.
+
+		In this module you will learn about the Karplus-Strong plucked string algorithm and how to create
+		a LabVIEW Virtual Musical Instrument (VMI) that you can "play" using a MIDI music file.
+</Val> </String>
+
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+<String> <Name>sec</Name> <Val>Karplus-Strong Algorithm</Val> </String>
+
+<String> <Name>para</Name> <Val>
+		The screencast video of {cnxn target=&quot;video-theory&quot;/} develops the theory of the Karplus-Strong
+		plucked string algorithm, which is based on a closed loop composed of a delay line and a lowpass filter.
+		As will be shown, the delay line is initialized with a noise burst, and the continuously-circulating
+		noise burst is filtered a bit on each pass through the loop. The output signal is therefore quasi-periodic
+		with a wideband noise-like transient converging to a narrowband signal composed of only a few sinusoidal
+		harmonic components.
+</Val> </String>
+
+<Cluster> <Name>video</Name> <NumElts>4</NumElts>
+<String> <Name>ID (optional)</Name> <Val>video-theory</Val> </String>
+<String> <Name>video name</Name> <Val>theory</Val> </String>
+<String> <Name>webpage title</Name> <Val>Karplus-Strong theory</Val> </String>
+<String> <Name>caption</Name> <Val>Theory of the Karplus-Strong plucked string algorithm</Val> </String>
+</Cluster>
+
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+<String> <Name>sec</Name> <Val>LabVIEW Implementation</Val> </String>
+
+<String> <Name>para</Name> <Val>
+		The Karplus-Strong algorithm block diagram may be viewed as a {emphasis}single{/emphasis} digital filter 
+		that is excited by a noise pulse. For real-time implementation the digital filter runs continuously with
+		an input that is normally zero. The filter is "plucked" by applying a burst of white noise that is long
+		enough to completely fill the delay line.
+
+		As an exercise, review the block diagram shown in {cnxn target=&quot;video-theory&quot;/} and derive
+		the difference equation that relates the overall output y(n) to the input x(n). Invest some effort in
+		this so that you can develop a better understanding of the algorithm. Watch the video solution in
+		{cnxn target=&quot;video-diffeqn&quot;/} only {emphasis}after{/emphasis} you have completed your own
+		derivation!
+</Val> </String>
+
+<Cluster> <Name>video</Name> <NumElts>4</NumElts>
+<String> <Name>ID (optional)</Name> <Val>video-diffeqn</Val> </String>
+<String> <Name>video name</Name> <Val>diffeqn</Val> </String>
+<String> <Name>webpage title</Name> <Val>K-S difference</Val> </String>
+<String> <Name>caption</Name> <Val>Difference equation for Karplus-Strong block diagram</Val> </String>
+</Cluster>
+
+<String> <Name>para</Name> <Val>
+		The screencast video of {cnxn target=&quot;video-build&quot;/} shows how to implement the difference
+		equation as a digital filter and how to create the noise pulse. The video includes an audio 
+		demonstration of the finished result.
+</Val> </String>
+
+<Cluster> <Name>video</Name> <NumElts>4</NumElts>
+<String> <Name>ID (optional)</Name> <Val>video-build</Val> </String>
+<String> <Name>video name</Name> <Val>build</Val> </String>
+<String> <Name>webpage title</Name> <Val>K-S build</Val> </String>
+<String> <Name>caption</Name> <Val>Building the Karplus-Strong block diagram in LabVIEW</Val> </String>
+</Cluster>
+
+
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+<String> <Name>sec</Name> <Val>Project Activity: Karplus-Strong VMI (Virtual Musical Instrument)</Val> </String>
+
+<String> <Name>para</Name> <Val>
+		In order to better appreciate the musical qualities of the Karplus-Strong plucked string algorithm, 
+		create a {term}Virtual Musical Instrument{/term} ({term}VMI{/term} for short) 
+		that can be played by "MIDI Jam Session." If necessary, visit 
+		{cnxn document="m???"}MIDI Jam Session{/cnxn}, download the application VI .zip file, and view the 
+		screencast video in that module to learn more about the application and how to create your 
+		own virtual musical instrument. Your VMI will accept parameters that specify 
+		frequency, amplitude, and duration of a single note, and will produce a corresponding array of 
+		audio samples using the Karplus-Strong algorithm described in the previous section.
+
+		For best results, select a MIDI music file that contains a solo instrument or perhaps a duet.
+		For example, try a Google search for "Vivaldi_Sonata_Cello_Bass.mid," which is available at the
+		Classical MIDI Archive.
+
+		Try experimenting with the critical parameters of your instrument, including sampling frequency and
+		the low-pass filter constant "g". Regarding sampling frequency: lower sampling frequencies influence
+		the sound in {emphasis}two{/emphasis} distinct ways -- can you describe each of these two ways?
+</Val> </String>
+
+
+
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+<String> <Name>sec</Name> <Val>References</Val> </String>
+
+<Cluster> <Name>list</Name> <NumElts>3</NumElts>
+<EW> <Name>type</Name> <Choice>Bulleted</Choice> <Choice>Enumerated</Choice> <Val>0</Val> </EW>
+<String> <Name>list name (optional)</Name> <Val></Val> </String>
+<Array> <Name>list items</Name> <Dimsize>2</Dimsize>
+	<String> <Name>String</Name> <Val>Moore, F.R., "Elements of Computer Music," Prentice-Hall, 1990, ISBN 0-13-252552-6.</Val> </String>
+	<String> <Name>String</Name> <Val>Karplus, K. and A. Strong, "Digital Synthesis of Plucked String and Drum Timbres," 
+			Computer Music Journal 7(2): 43-55, 1983.</Val> </String>
+</Array>
+</Cluster>
+
+
+<String> <Name>secend</Name> <Val></Val> </String>
+<!-------------------------------------------------------->
+
+</LVData>

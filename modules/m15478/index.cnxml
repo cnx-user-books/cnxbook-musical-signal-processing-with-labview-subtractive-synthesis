@@ -1,0 +1,93 @@
+<document xmlns="http://cnx.rice.edu/cnxml">
+  <title>Linear Prediction and Cross Synthesis</title>
+  <metadata xmlns:md="http://cnx.rice.edu/mdml">
+  <md:content-id>m15478</md:content-id>
+  <md:title>Linear Prediction and Cross Synthesis</md:title>
+  <md:abstract>Linear prediction coding (LPC) models a speech signal as a time-varying filter driven by an excitation signal. The time-varying filter coefficients model the vocal tract spectral envelope. “Cross synthesis” is an interesting special effect in which a musical instrument signal drives the digital filter (or vocal tract model), producing the sound of a “singing instrument.” The theory and implementation of linear prediction are presented in this module.</md:abstract>
+  <md:uuid>b6d030f8-c170-4ce8-9ab0-f1237a574f30</md:uuid>
+</metadata>
+
+<content>
+
+<table id="labview_banner" frame="none" summary=""><tgroup cols="2">
+<colspec rowsep="0" colsep="0"/> <colspec colwidth="6in" rowsep="0" colsep="0"/>
+<tbody>
+  <row>
+    <entry morerows="3"><media id="idm5628896" alt=""><image src="../../media/LabVIEWq.png" mime-type="image/png"/></media></entry>
+    <entry> This module refers to LabVIEW, a software development environment that features a graphical programming language.
+       Please see the <link document="m15428">LabVIEW QuickStart Guide</link> module for tutorials and documentation that will help you:</entry>
+  </row>
+  <row> <entry>• Apply LabVIEW to Audio Signal Processing </entry> </row>
+  <row> <entry>• Get started with LabVIEW</entry> </row>
+  <row> <entry>• Obtain a fully-functional evaluation edition of LabVIEW</entry> </row>
+</tbody>
+</tgroup>
+</table>
+
+
+<section id="sec1">
+<title>Introduction</title>
+
+<para id="par2">
+		<term>Subtractive synthesis</term> methods are characterized by a wideband excitation source followed
+		by a time-varying filter. <term>Linear prediction</term> provides an effective way to estimate
+		the time-varying filter coefficients by analyzing an existing music or speech signal. 
+		<term>Linear predictive coding</term> (<term>LPC</term>) is one of the first applications of linear
+		prediction to the problem of speech compression. In this application, a speech signal is modelled as
+		a time-varying digital filter driven by an <term>innovations sequence</term>. The LPC method identifies
+		the filter coefficients by minimizing the prediction error between the filter output and the original
+		signal. Significant compression is possible because the innovations sequence and filter coefficients 
+		require less space than the original signal.</para>
+
+<para id="par3">		<term>Cross synthesis</term> is a musical adaptation of the speech compression technique. A musical
+		instrument or speech signal serves as the original signal to be analyzed. Once the filter coefficients
+		have been estimated, the innovations sequence is discarded and another signal is used as the filter
+		excitation. For example, a "singing guitar" effect is created by deriving the filter coefficients from
+		a speech signal and driving the filter with the sound of an electric guitar; listen to the audio clips below:
+</para>
+
+<list id="list4" list-type="bulleted">
+
+<item> <link resource="speech.wav">speech.wav</link> -- Speech signal for digital filter coefficients
+			(audio courtesy of the Open Speech Repository,
+			<link url="http://www.voiptroubleshooter.com/open_speech">www.voiptroubleshooter.com/open_speech</link>; 
+			the sentences are two of the many phonetically balanced <term>Harvard Sentences</term>, an important standard
+		       for the speech processing community) </item>
+<item> <link resource="eguitar.wav">eguitar.wav</link> -- Electric guitar signal for filter input </item>
+<item> <link resource="speech_eguitar.wav">speech_eguitar.wav</link> -- Cross-synthesized result (filter output) </item>
+
+</list>
+
+</section>
+
+<section id="sec5">
+<title>Linear Prediction Theory</title>
+
+<para id="par6">
+		The <link target-id="video-theory"/> screencast video develops the theory behind linear prediction and describes
+		how the technique is applied to musical signals. Practical issues such as choosing the filter block size and filter order
+		are also discussed.
+</para>
+
+<figure id="video-theory"><title><link url="https://youtu.be/Azud6Xhd03I" window="new">https://youtu.be/Azud6Xhd03I</link> (10:01)</title><media id="eip-idm309296160" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/Azud6Xhd03I?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Theory of linear prediction and cross synthesis
+</caption></figure></section>
+
+<section id="sec8">
+<title>Linear Prediction Implementation</title>
+
+<para id="par9">
+		The previous section explains how you can use the all-pole filter model to implement
+		cross synthesis. But how are the all-pole filter coefficients actually created?</para>
+
+<para id="par10">		The LabVIEW MathScript feature includes the function <term>lpc</term>, which accepts a signal
+		(1-D vector or array) and the desired filter order and returns an array of filter coefficients.
+		For details, select "Tools | MathScript Window" and type <code display="inline">help lpc</code>.
+</para>
+
+</section>
+
+</content>
+</document>

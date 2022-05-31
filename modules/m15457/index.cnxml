@@ -1,0 +1,223 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:m="http://www.w3.org/1998/Math/MathML">
+  <title>Band-Limited Pulse Generator</title>
+  <metadata xmlns:md="http://cnx.rice.edu/mdml">
+  <md:content-id>m15457</md:content-id>
+  <md:title>Band-Limited Pulse Generator</md:title>
+  <md:abstract>Subtractive synthesis techniques often require a wideband excitation source such as a pulse train to drive a time-varying digital filter. Traditional rectangular pulses have theoretically infinite bandwidth, and therefore always introduce aliasing noise into the input signal. A band-limited pulse (BLP) source is free of aliasing problems, and is more suitable for subtractive synthesis algorithms. The mathematics of the band-limited pulse is presented, and a LabVIEW VI is developed to implement the BLP source. An audio demonstration is included.</md:abstract>
+  <md:uuid>5d07ed29-04a5-4478-bbad-9f7b445fb636</md:uuid>
+</metadata>
+
+<content>
+
+<table id="labview_banner" frame="none" summary=""><tgroup cols="2">
+<colspec rowsep="0" colsep="0"/> <colspec colwidth="6in" rowsep="0" colsep="0"/>
+<tbody>
+  <row>
+    <entry morerows="3"><media id="idm437136" alt=""><image src="../../media/LabVIEWq.png" mime-type="image/png"/></media></entry>
+    <entry> This module refers to LabVIEW, a software development environment that features a graphical programming language.
+       Please see the <link document="m15428">LabVIEW QuickStart Guide</link> module for tutorials and documentation that will help you:</entry>
+  </row>
+  <row> <entry>• Apply LabVIEW to Audio Signal Processing </entry> </row>
+  <row> <entry>• Get started with LabVIEW</entry> </row>
+  <row> <entry>• Obtain a fully-functional evaluation edition of LabVIEW</entry> </row>
+</tbody>
+</tgroup>
+</table>
+
+
+<section id="sec1">
+<title>Introduction</title>
+
+<para id="par2">
+		<term>Subtractive synthesis</term> techniques apply a filter (usually time-varying) to a 
+		wideband excitation source such as noise or a pulse train. The filter 
+		shapes the wideband spectrum into the desired spectrum. The excitation/filter technique describes
+		the sound-producing mechanism of many types of physical instruments as well as the human voice, making
+		subtractive synthesis an attractive method for <term>physical modeling</term> of real instruments.</para>
+
+<para id="par3">		A <term>pulse train</term>, a repetitive series of pulses, provides an excitation source that has
+		a perceptible pitch, so in a sense the excitation spectrum is "pre-shaped" before applying it to a filter.
+		Many types of musical instruments use some sort of pulse train as an excitation, notably wind instruments such
+		as brass (e.g., trumpet, trombone, and tuba) and woodwinds (e.g., clarinet, saxophone, oboe, and bassoon). Likewise, the human
+		voice begins as a series of pulses produced by vocal cord vibrations, which can be considered
+		the "excitation signal" to the vocal and nasal tract that acts as a resonant cavity to amplify and filter
+		the "signal."</para>
+
+<para id="par4">		Traditional rectangular pulse shapes have significant spectral energy contained in harmonics that extend beyond 
+		the <term>folding frequency</term> (half of the sampling frequency). These harmonics are subject to <term>aliasing</term>,
+		and are "folded back" into the <term>principal alias</term>, i.e., the spectrum between 0 and
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:msub>
+    <m:mi>f</m:mi>
+    <m:mi>s</m:mi>
+   </m:msub>
+   <m:mo>/</m:mo><m:mn>2</m:mn>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ </m:annotation>
+ </m:semantics>
+</m:math>. The aliased harmonics are distinctly audible as high-frequency tones that, since undesired, qualify as noise.</para>
+
+<para id="par5">		The <term>band-limited pulse</term>, however, is free of aliasing problems because its maximum harmonic can be
+		chosen to be below the folding frequency. In this module the mathematics of the band-limited pulse are
+		developed, and a band-limited pulse generator is implemented in LabVIEW.
+</para>
+
+</section>
+
+<section id="sec6">
+<title>Mathematical Development of the Band-Limited Pulse</title>
+
+<para id="par7">
+		By definition, a <term>band-limited pulse</term> has zero spectral energy beyond some determined frequency.
+		You can use a truncated Fourier series to create a series of harmonics, or sinusoids, as in 
+		<link target-id="eqn-fs"/>:
+</para>
+
+<equation id="eqn-fs">
+
+
+
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:mi>x</m:mi><m:mo stretchy="false">(</m:mo><m:mi>t</m:mi><m:mo stretchy="false">)</m:mo><m:mo>=</m:mo><m:mstyle displaystyle="true">
+    <m:munderover>
+     <m:mo>∑</m:mo>
+     <m:mrow>
+      <m:mi>k</m:mi><m:mo>=</m:mo><m:mn>1</m:mn>
+     </m:mrow>
+     <m:mi>N</m:mi>
+    </m:munderover>
+    <m:mrow>
+     <m:mi>sin</m:mi><m:mo>⁡</m:mo><m:mo stretchy="false">(</m:mo><m:mn>2</m:mn><m:mi>π</m:mi><m:mi>k</m:mi><m:msub>
+      <m:mi>f</m:mi>
+      <m:mn>0</m:mn>
+     </m:msub>
+     <m:mi>t</m:mi><m:mo stretchy="false">)</m:mo>
+    </m:mrow>
+   </m:mstyle>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamiEaiaacIcacaWG0bGaaiykaiabg2da9maaqahabaGaci4CaiaacMgacaGGUbGaaiikaiaaikdacqaHapaCcaWGRbGaamOzamaaBaaaleaacaaIWaaabeaakiaadshacaGGPaaaleaacaWGRbGaeyypa0JaaGymaaqaaiaad6eaa0GaeyyeIuoaaaa@49C4@</m:annotation>
+ </m:semantics>
+</m:math>
+
+</equation>
+
+<para id="par9">
+		The <link target-id="video-blp-tonenoise"/> screencast video shows how to implement <link target-id="eqn-fs"/> in LabVIEW by
+		introducing the "Tones and Noise" built-in subVI that is part of the "Signal Processing" palette. The video includes a demonstration that relates
+		the time-domain pulse shape, spectral behavior, and audible sound of the band-limited pulse. 
+</para>
+
+<para id="par10"><media id="idm4028432" alt=""><image src="../../media/LabVIEW.png" mime-type="image/png"/></media> Download the finished VI from the video: <link resource="blp_demo.vi">blp_demo.vi</link>.
+		This VI requires installation of the <link document="m15430">TripleDisplay</link> front-panel indicator.
+</para>
+
+<figure id="video-blp-tonenoise"><title><link url="https://youtu.be/Z8MNNAyn9cQ" window="new">https://youtu.be/Z8MNNAyn9cQ</link> (11:45)</title><media id="eip-idm391754816" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/Z8MNNAyn9cQ?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Band-limited pulse generator in LabVIEW using "Tones and Noise" built-in subVI
+</caption></figure><para id="par12">
+		The truncated Fourier series approach works fine for off-line or batch-mode signal processing. However, in a real-time
+		application the computational cost of generating individual sinusoids becomes prohibitive, especially when a fairly dense spectrum
+		is required (for example, 50 sinusoids).</para>
+
+<para id="par13">		A closed-form version of the truncated Fourier series equation is presented in <link target-id="eqn-closedform"/> (refer to
+		Moore in "References" section below):
+</para>
+
+<equation id="eqn-closedform">
+
+
+
+<m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:mi>x</m:mi><m:mo stretchy="false">(</m:mo><m:mi>t</m:mi><m:mo stretchy="false">)</m:mo><m:mo>=</m:mo><m:mstyle displaystyle="true">
+    <m:munderover>
+     <m:mo>∑</m:mo>
+     <m:mrow>
+      <m:mi>k</m:mi><m:mo>=</m:mo><m:mn>1</m:mn>
+     </m:mrow>
+     <m:mi>N</m:mi>
+    </m:munderover>
+    <m:mrow>
+     <m:mi>sin</m:mi><m:mo>⁡</m:mo><m:mo stretchy="false">(</m:mo><m:mi>k</m:mi><m:mi>θ</m:mi><m:mo stretchy="false">)</m:mo><m:mo>=</m:mo><m:mi>sin</m:mi><m:mo>⁡</m:mo><m:mrow><m:mo>[</m:mo> <m:mrow>
+      <m:mo stretchy="false">(</m:mo><m:mi>N</m:mi><m:mo>+</m:mo><m:mn>1</m:mn><m:mo stretchy="false">)</m:mo><m:mfrac>
+       <m:mi>θ</m:mi>
+       <m:mn>2</m:mn>
+      </m:mfrac>
+     </m:mrow> <m:mo>]</m:mo></m:mrow>
+    </m:mrow>
+   </m:mstyle><m:mfrac>
+    <m:mrow>
+     <m:mi>sin</m:mi><m:mo>⁡</m:mo><m:mrow><m:mo>(</m:mo>
+      <m:mrow>
+       <m:mi>N</m:mi><m:mfrac>
+        <m:mi>θ</m:mi>
+        <m:mn>2</m:mn>
+       </m:mfrac>
+      </m:mrow>
+     <m:mo>)</m:mo></m:mrow>
+    </m:mrow>
+    <m:mrow>
+     <m:mi>sin</m:mi><m:mo>⁡</m:mo><m:mrow><m:mo>(</m:mo>
+      <m:mrow>
+       <m:mfrac>
+        <m:mi>θ</m:mi>
+        <m:mn>2</m:mn>
+       </m:mfrac>
+      </m:mrow>
+     <m:mo>)</m:mo></m:mrow>
+    </m:mrow>
+   </m:mfrac>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaamiEaiaacIcacaWG0bGaaiykaiabg2da9maaqahabaGaci4CaiaacMgacaGGUbGaaiikaiaadUgacqaH4oqCcaGGPaGaeyypa0Jaci4CaiaacMgacaGGUbWaamWaaeaacaGGOaGaamOtaiabgUcaRiaaigdacaGGPaWaaSaaaeaacqaH4oqCaeaacaaIYaaaaaGaay5waiaaw2faaaWcbaGaam4Aaiabg2da9iaaigdaaeaacaWGobaaniabggHiLdGcdaWcaaqaaiGacohacaGGPbGaaiOBamaabmaabaGaamOtamaalaaabaGaeqiUdehabaGaaGOmaaaaaiaawIcacaGLPaaaaeaaciGGZbGaaiyAaiaac6gadaqadaqaamaalaaabaGaeqiUdehabaGaaGOmaaaaaiaawIcacaGLPaaaaaaaaa@60FB@</m:annotation>
+ </m:semantics>
+</m:math>
+
+</equation>
+
+<para id="par15">
+		where</para>
+
+<para id="par16"><m:math>
+ <m:semantics>
+  <m:mrow>
+   <m:mi>θ</m:mi><m:mo>=</m:mo><m:mn>2</m:mn><m:mi>π</m:mi><m:msub>
+    <m:mi>f</m:mi>
+    <m:mn>0</m:mn>
+   </m:msub>
+   <m:mi>t</m:mi>
+  </m:mrow>
+ <m:annotation encoding="MathType-MTEF">
+ MathType@MTEF@5@5@+=feaagaart1ev2aaatCvAUfeBSjuyZL2yd9gzLbvyNv2CaerbuLwBLnhiov2DGi1BTfMBaeXatLxBI9gBaerbd9wDYLwzYb1uaebbnrfifHhDYfgasaacH8YjY=vipgYlh9vqqj=hEeeu0xXdbba9frFj0=OqFfea0dXdd9vqai=hGuQ8kuc9pgc9q8qqaq=dir=f0=yqaiVgFr0xfr=xfr=xb9adbaqaaeGaciGaaiaabeqaamaabaabaaGcbaGaeqiUdeNaeyypa0JaaGOmaiabec8aWjaadAgadaWgaaWcbaGaaGimaaqabaGccaWG0baaaa@3D44@</m:annotation>
+ </m:semantics>
+ </m:math>. The closed-form version of the summation requires only three sinusoidal oscillators yet can produce an arbitrary number of sinusoidal components.</para>
+
+<para id="par17"> Implementing <link target-id="eqn-closedform"/> contains one significant challenge, however. Note the ratio of two sinusoids on the far right
+ of the equation. The denominator sinusoid periodically passes through zero, leading to a divide-by-zero error. However, because the numerator sinusoid
+ operates at a frequency that is N times higher, the numerator sinusoid also approaches zero whenever the lower-frequency denominator sinusoid
+ approaches zero. This "0/0" condition converges to either N or -N; the sign can be inferred by looking at adjacent samples.
+</para>
+
+</section>
+
+<section id="sec18">
+<title>References</title>
+
+<list id="list19" list-type="bulleted">
+
+<item> Moore, F.R., "Elements of Computer Music," Prentice-Hall, 1990, ISBN 0-13-252552-6. </item>
+
+</list>
+
+</section>
+
+</content>
+</document>
